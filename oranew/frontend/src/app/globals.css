@@ -1,0 +1,181 @@
+/* Import Elegant Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   ORA LUXURY DESIGN SYSTEM
+   own. radiate. adorn.
+   ============================================ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background font-sans text-text-primary antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* Luxury Button Styles */
+  .btn-primary {
+    @apply px-8 py-3 bg-primary text-text-primary font-medium rounded-luxury
+           transition-all duration-200 hover:bg-primary-dark hover:shadow-luxury
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply px-8 py-3 border-2 border-primary text-text-primary font-medium rounded-luxury
+           transition-all duration-200 hover:bg-primary hover:shadow-luxury
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply px-6 py-2 text-text-primary font-medium rounded-luxury
+           transition-all duration-200 hover:bg-primary/10
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  /* Luxury Input Styles */
+  .input-luxury {
+    @apply w-full px-4 py-3 border border-border rounded-luxury
+           bg-background-white text-text-primary placeholder:text-text-muted
+           transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+  }
+
+  /* Luxury Card */
+  .card-luxury {
+    @apply bg-background-white rounded-luxury shadow-luxury
+           transition-all duration-300 hover:shadow-luxury-hover;
+  }
+
+  /* Product Card */
+  .product-card {
+    @apply card-luxury overflow-hidden cursor-pointer;
+  }
+
+  .product-image-container {
+    @apply relative aspect-[3/4] overflow-hidden bg-background;
+  }
+
+  .product-image {
+    @apply object-cover transition-transform duration-500;
+  }
+
+  /* Skeleton Loader */
+  .skeleton {
+    @apply bg-border animate-skeleton rounded;
+  }
+
+  /* Section Container */
+  .container-luxury {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section Spacing */
+  .section-luxury {
+    @apply py-12 sm:py-16 md:py-20 lg:py-24;
+  }
+
+  /* Heading Styles */
+  .heading-display {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-display-lg font-serif font-light tracking-tight;
+  }
+
+  .heading-section {
+    @apply text-3xl sm:text-4xl md:text-display-md font-serif font-light tracking-tight;
+  }
+
+  .heading-page {
+    @apply text-2xl sm:text-3xl md:text-display-sm font-serif font-light;
+  }
+
+  /* Text Styles */
+  .text-luxury {
+    @apply text-text-secondary leading-relaxed;
+  }
+
+  /* Badge */
+  .badge-luxury {
+    @apply inline-block px-3 py-1 text-sm font-medium rounded-full;
+  }
+
+  .badge-discount {
+    @apply badge-luxury bg-error/10 text-error;
+  }
+
+  .badge-new {
+    @apply badge-luxury bg-primary/20 text-text-primary;
+  }
+
+  /* Divider */
+  .divider-luxury {
+    @apply w-full h-px bg-border;
+  }
+
+  /* Link Hover */
+  .link-luxury {
+    @apply text-text-primary hover:text-text-secondary transition-colors duration-200 underline-offset-4 hover:underline;
+  }
+}
+
+@layer utilities {
+  /* Custom Animations */
+  .animate-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  /* Smooth Scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+
+  /* Hide Scrollbar */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Aspect Ratios */
+  .aspect-product {
+    aspect-ratio: 3 / 4;
+  }
+
+  .aspect-banner {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS (Elegant)
+   ============================================ */
+.toast-luxury {
+  @apply bg-background-white shadow-luxury-hover rounded-luxury px-6 py-4 text-text-primary;
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+::selection {
+  @apply bg-primary text-text-primary;
+}
+
+::-moz-selection {
+  @apply bg-primary text-text-primary;
+}

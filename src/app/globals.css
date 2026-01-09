@@ -3,24 +3,214 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --gold: #B8860B;
+  --gold-light: #D4AF37;
+  --gold-dark: #8B6914;
+  --cream: #FAF8F5;
+  --champagne: #F7E7CE;
+  --charcoal: #2C2C2C;
+  --soft-black: #1A1A1A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
+  --color-cream: var(--cream);
+  --color-champagne: var(--champagne);
+  --color-charcoal: var(--charcoal);
+  --color-soft-black: var(--soft-black);
+  
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-cormorant), Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
   }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxury serif for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+}
+
+/* Display font for special text */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Smooth transitions */
+button, a {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Luxury button styles */
+.btn-luxury {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: white;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 1rem 2.5rem;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-luxury::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-luxury:hover::before {
+  left: 100%;
+}
+
+.btn-luxury-outline {
+  background: transparent;
+  color: var(--charcoal);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  padding: 1rem 2.5rem;
+  border: 1px solid var(--charcoal);
+}
+
+.btn-luxury-outline:hover {
+  background: var(--charcoal);
+  color: white;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Selection color */
+::selection {
+  background: var(--champagne);
+  color: var(--charcoal);
+}
+
+/* Luxury underline animation */
+.luxury-underline {
+  position: relative;
+}
+
+.luxury-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+.luxury-underline:hover::after {
+  width: 100%;
+}
+
+/* Elegant divider */
+.divider-gold {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 1.5rem auto;
+}
+
+/* Price styling */
+.price-original {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.875rem;
+}
+
+.price-current {
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+/* Product badge */
+.badge-new {
+  background: var(--gold);
+  color: white;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+}
+
+.badge-sale {
+  background: #C41E3A;
+  color: white;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+}
+
+/* Shimmer effect for loading */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }

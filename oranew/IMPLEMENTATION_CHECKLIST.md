@@ -1,0 +1,915 @@
+# ORA E-COMMERCE — IMPLEMENTATION CHECKLIST
+
+Use this checklist to track progress on each phase. Update as you complete items.
+
+---
+
+## 🔴 PHASE 1: PAYMENT INFRASTRUCTURE (Week 1-2)
+
+### A. Backend Payment Integration
+
+- [ ] **Razorpay Account Setup**
+  - [ ] Create Razorpay account (https://razorpay.com)
+  - [ ] Get API keys (RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)
+  - [ ] Enable test mode for development
+  - [ ] Add keys to .env file (never commit)
+  - [ ] Generate WEBHOOK_SECRET (secure random token)
+
+- [ ] **Payment Controller Implementation**
+  - [ ] Copy payment controller code from IMPLEMENTATION_SNIPPETS.md
+  - [ ] Implement `createPayment()` function
+  - [ ] Implement `verifyPayment()` function
+  - [ ] Implement `webhook()` function with signature verification
+  - [ ] Implement `getPaymentStatus()` function
+  - [ ] Test locally with Razorpay SDK
+
+- [ ] **Inventory System**
+  - [ ] Create `src/utils/inventory.ts` file
+  - [ ] Copy inventory functions from IMPLEMENTATION_SNIPPETS.md
+  - [ ] Implement `validateStock()` function
+  - [ ] Implement `lockInventory()` function
+  - [ ] Implement `deductInventory()` function
+  - [ ] Implement `releaseLocks()` function
+  - [ ] Implement `restockInventory()` function
+  - [ ] Implement `cleanupExpiredLocks()` cron job
+
+- [ ] **Middleware & Routes**
+  - [ ] Create `src/middleware/rawBodyParser.ts`
+  - [ ] Add raw body parser middleware to server.ts
+  - [ ] Add webhook route: POST /api/payments/webhook (no auth)
+  - [ ] Test webhook signature verification
+
+- [ ] **Database Updates**
+  - [ ] Update Prisma schema to add InventoryLock model
+  - [ ] Update Prisma schema to add PasswordReset model
+  - [ ] Create migration file
+  - [ ] Run: `npm run prisma:migrate`
+  - [ ] Verify tables created in database
+
+- [ ] **Order Controller Updates**
+  - [ ] Update `checkout()` to validate stock first
+  - [ ] Update `checkout()` to lock inventory
+  - [ ] Update `checkout()` to NOT clear cart
+  - [ ] Create order with status PENDING
+  - [ ] Return orderId to frontend
+  - [ ] Update `getOrder()` to return order details
+
+- [ ] **Testing**
+  - [ ] Start backend: `npm run dev`
+  - [ ] Create test order via API
+  - [ ] Verify order created with PENDING status
+  - [ ] Verify inventory locked
+  - [ ] Test payment creation endpoint
+  - [ ] Receive test payment from Razorpay
+  - [ ] Verify webhook received & signature verified
+  - [ ] Verify order status updated to PAID
+  - [ ] Verify inventory deducted
+  - [ ] Verify cart cleared
+  - [ ] Check notification created
+  - [ ] Check email sent
+
+---
+
+### B. Frontend Payment Page
+
+- [ ] **Payment Page Implementation**
+  - [ ] Create `/checkout/payment/page.tsx`
+  - [ ] Copy code from IMPLEMENTATION_SNIPPETS.md
+  - [ ] Add Razorpay SDK script
+  - [ ] Fetch order details
+  - [ ] Display order summary (items, totals, address)
+  - [ ] Implement payment button
+  - [ ] Integrate Razorpay modal
+  - [ ] Handle payment success/failure
+  - [ ] Verify payment on backend
+  - [ ] Poll for webhook confirmation
+  - [ ] Redirect to success page
+
+- [ ] **Success Page**
+  - [ ] Create `/checkout/success/page.tsx`
+  - [ ] Copy code from IMPLEMENTATION_SNIPPETS.md
+  - [ ] Display order confirmation
+  - [ ] Show order number & details
+  - [ ] Show shipping address
+  - [ ] Show totals breakdown
+  - [ ] Add "View Order Details" button
+  - [ ] Add "Continue Shopping" button
+
+- [ ] **Frontend Testing**
+  - [ ] Add item to cart
+  - [ ] Proceed to checkout (error if no address)
+  - [ ] Click "Pay with Razorpay"
+  - [ ] Use test card: 4111 1111 1111 1111
+  - [ ] Complete payment
+  - [ ] See success page
+  - [ ] Verify order in database
+  - [ ] Check email received
+  - [ ] Verify inventory deducted
+
+- [ ] **Error Handling**
+  - [ ] Test payment cancellation (close modal)
+  - [ ] Test failed payment
+  - [ ] Show proper error messages
+  - [ ] Allow retry of failed payments
+  - [ ] Handle network errors
+
+---
+
+## 🟠 PHASE 2: CHECKOUT FLOW (Week 2-3)
+
+### A. Address Management
+
+- [ ] **Address Selection UI**
+  - [ ] Create `components/checkout/AddressSelector.tsx`
+  - [ ] Show user's existing addresses
+  - [ ] Allow selecting default address
+  - [ ] Show "Add New Address" form toggle
+  - [ ] Form: full name, phone, address line 1/2, city, state, pincode
+  - [ ] Validate form inputs
+  - [ ] Save new address to database
+  - [ ] Set as shipping & billing address (can be same)
+
+- [ ] **Backend Address APIs** (likely exist)
+  - [ ] GET /api/user/addresses — list user's addresses
+  - [ ] POST /api/user/addresses — create new address
+  - [ ] PUT /api/user/addresses/:id — update address
+  - [ ] DELETE /api/user/addresses/:id — delete address
+
+---
+
+### B. Checkout Pages
+
+- [ ] **Checkout Page (`/checkout`)**
+  - [ ] Create `/checkout/page.tsx`
+  - [ ] Display items from cart
+  - [ ] Show address selection
+  - [ ] Show order summary (items, GST, shipping, total)
+  - [ ] Validate address selected before proceeding
+  - [ ] "Continue to Payment" button → POST /api/orders
+  - [ ] On success: redirect to `/checkout/payment?orderId=xxx`
+
+- [ ] **Order Summary Component**
+  - [ ] Create `components/checkout/OrderSummary.tsx`
+  - [ ] Display cart items with prices
+  - [ ] Show discount (if applied)
+  - [ ] Show GST calculation (3% hardcoded for now)
+  - [ ] Show shipping fee (free over ₹1000)
+  - [ ] Show total amount
+  - [ ] Responsive design
+
+- [ ] **Complete Checkout Flow**
+  - [ ] Cart page → Proceed to Checkout button
+  - [ ] Checkout page → Address selection
+  - [ ] Order creation (backend locks inventory)
+  - [ ] Payment page → Razorpay modal
+  - [ ] Payment success → Success page
+  - [ ] Success page → View Order Details or Continue Shopping
+
+---
+
+## 🟡 PHASE 3: CUSTOMER ACCOUNT FEATURES (Week 3-4)
+
+### A. Authentication Pages
+
+- [ ] **Login Page (`/auth/login`)**
+  - [ ] Create `/auth/login/page.tsx`
+  - [ ] Email input, password input
+  - [ ] Submit button
+  - [ ] "Forgot password?" link
+  - [ ] "Register here" link
+  - [ ] Form validation (Zod)
+  - [ ] POST /api/auth/login
+  - [ ] Store token in localStorage
+  - [ ] Update Zustand auth store
+  - [ ] Redirect to home or dashboard
+  - [ ] Error handling & display
+
+- [ ] **Register Page (`/auth/register`)**
+  - [ ] Create `/auth/register/page.tsx`
+  - [ ] Email, password, full name, phone inputs
+  - [ ] Password confirmation
+  - [ ] Terms & conditions checkbox
+  - [ ] Submit button
+  - [ ] Form validation (Zod)
+  - [ ] POST /api/auth/register
+  - [ ] Auto-login on success
+  - [ ] Redirect to home
+  - [ ] Show email verification message (optional)
+
+- [ ] **Forgot Password (`/auth/forgot-password`)**
+  - [ ] Create `/auth/forgot-password/page.tsx`
+  - [ ] Email input only
+  - [ ] Submit button
+  - [ ] POST /api/auth/forgot-password
+  - [ ] Show success message: "Reset link sent to email"
+  - [ ] Link to login page
+
+- [ ] **Reset Password (`/auth/reset-password`)**
+  - [ ] Create `/auth/reset-password/page.tsx`
+  - [ ] Accept ?token query param
+  - [ ] New password input
+  - [ ] Confirm password input
+  - [ ] Validate token (check expiry)
+  - [ ] POST /api/auth/reset-password
+  - [ ] Show success message
+  - [ ] Redirect to login
+
+- [ ] **Backend Auth Endpoints**
+  - [ ] Update POST /api/auth/register ✓ (exists)
+  - [ ] Update POST /api/auth/login ✓ (exists)
+  - [ ] Implement POST /api/auth/forgot-password (NEW)
+  - [ ] Implement POST /api/auth/reset-password (NEW)
+  - [ ] Add PasswordReset model to Prisma
+  - [ ] Test all endpoints
+
+---
+
+### B. Customer Account Pages
+
+- [ ] **Profile Page (`/account`)**
+  - [ ] Create `/account/page.tsx`
+  - [ ] Display user info: name, email, phone
+  - [ ] Edit button for each field (or full edit form)
+  - [ ] Show account creation date
+  - [ ] Link to orders, addresses, settings
+  - [ ] Navigation menu/sidebar
+
+- [ ] **Address Management (`/account/addresses`)**
+  - [ ] Create `/account/addresses/page.tsx`
+  - [ ] List user's addresses in cards
+  - [ ] Edit button on each card
+  - [ ] Delete button on each card
+  - [ ] Set as default button
+  - [ ] Add New Address button
+  - [ ] Address form modal/page
+  - [ ] Call backend API to CRUD addresses
+
+- [ ] **Order History (`/account/orders`)**
+  - [ ] Create `/account/orders/page.tsx`
+  - [ ] List user's orders in table/cards
+  - [ ] Show: order number, date, total, status
+  - [ ] Pagination (10 per page)
+  - [ ] Click to view order detail
+  - [ ] Filter by status (optional)
+  - [ ] Backend: GET /api/orders (user's orders)
+
+- [ ] **Order Detail (`/account/orders/[id]`)**
+  - [ ] Create `/account/orders/[id]/page.tsx`
+  - [ ] Show all order info: number, date, status
+  - [ ] Display items with images, qty, price
+  - [ ] Show addresses (shipping & billing)
+  - [ ] Show payment status
+  - [ ] Show totals breakdown
+  - [ ] If PENDING/PROCESSING: show Cancel button
+  - [ ] If DELIVERED: show Return Request button
+  - [ ] Order timeline (Pending → Paid → Shipped → Delivered)
+  - [ ] If returned: show return status
+  - [ ] Backend: GET /api/orders/:id
+
+- [ ] **Settings Page (`/account/settings`)**
+  - [ ] Create `/account/settings/page.tsx` (optional)
+  - [ ] Change password form
+  - [ ] Notification preferences (optional)
+  - [ ] Account deletion (careful!)
+
+---
+
+## 🟢 PHASE 4: PRODUCT CATALOG & PAGES (Week 4-5)
+
+### A. Product Listing Page (PLP)
+
+- [ ] **Product Listing (`/products`)**
+  - [ ] Create `/products/page.tsx`
+  - [ ] Fetch products from API: GET /api/products
+  - [ ] Display in grid layout (3-4 columns)
+  - [ ] Show product card: image, name, price, discount, rating
+  - [ ] Add to cart button
+  - [ ] Add to wishlist button (heart icon)
+  - [ ] Link to product detail page
+  - [ ] Pagination (12-24 per page)
+  - [ ] Empty state if no products
+
+- [ ] **Filters & Search**
+  - [ ] Category filter (checkbox or dropdown)
+  - [ ] Price range filter (slider or input)
+  - [ ] Sort options: price (low→high), price (high→low), newest, rating
+  - [ ] Search box (text input)
+  - [ ] Mobile-responsive filter sidebar
+  - [ ] "Clear all filters" button
+  - [ ] Backend must support: GET /api/products?category=xxx&minPrice=xxx&maxPrice=xxx&sort=xxx&search=xxx
+
+- [ ] **Backend Product APIs**
+  - [ ] GET /api/products (with filters)
+  - [ ] GET /api/products/:slug
+  - [ ] GET /api/products/featured
+  - [ ] All should be public (no auth required)
+
+---
+
+### B. Product Detail Page (PDP)
+
+- [ ] **Product Detail (`/products/[slug]`)**
+  - [ ] Create `/products/[slug]/page.tsx`
+  - [ ] Fetch product: GET /api/products/:slug
+  - [ ] Display product image(s) with gallery/carousel
+  - [ ] Product name, price, discount, final price
+  - [ ] Rating & review count (link to reviews)
+  - [ ] Stock status: In Stock / Low Stock / Out of Stock
+  - [ ] Quantity selector (1-10 or based on stock)
+  - [ ] Add to cart button (disabled if out of stock)
+  - [ ] Add to wishlist button (heart icon)
+  - [ ] Product specifications (material, dimensions, weight)
+  - [ ] Care instructions
+  - [ ] Description (rich text / markdown)
+  - [ ] Reviews section (see Phase 7)
+  - [ ] Related products (same category)
+  - [ ] Breadcrumb navigation
+
+- [ ] **Product Components**
+  - [ ] Create `components/product/ProductCard.tsx`
+  - [ ] Create `components/product/ProductGallery.tsx` (image carousel)
+  - [ ] Create `components/product/ProductSpecs.tsx`
+  - [ ] Create `components/product/RelatedProducts.tsx`
+  - [ ] Create `components/product/ReviewSection.tsx`
+
+---
+
+### C. Cart & Wishlist Pages
+
+- [ ] **Cart Page (`/cart`)**
+  - [ ] Refactor `/cart/page.tsx`
+  - [ ] Fetch cart items from store
+  - [ ] Display items in table/list format
+  - [ ] Show: product image, name, qty selector, price, total
+  - [ ] Remove item button (trash icon)
+  - [ ] Subtotal calculation
+  - [ ] "Continue Shopping" button
+  - [ ] "Proceed to Checkout" button
+  - [ ] If empty: show "Cart is empty" message with link to products
+  - [ ] Update quantity (real-time API call)
+
+- [ ] **Wishlist Page (`/wishlist`)**
+  - [ ] Refactor `/wishlist/page.tsx`
+  - [ ] Fetch wishlist items from store
+  - [ ] Display items in grid layout
+  - [ ] Show product card with image, name, price, rating
+  - [ ] Remove from wishlist button
+  - [ ] "Add to Cart" button
+  - [ ] "View Product" button
+  - [ ] If empty: show "Wishlist is empty" message
+  - [ ] Move to cart functionality (optional: remove after adding)
+
+---
+
+## 💼 PHASE 5: ADMIN PANEL (Week 5-7)
+
+### A. Admin Authentication & Access
+
+- [ ] **Admin Auth Middleware**
+  - [ ] Implement role-based access control
+  - [ ] Protect all /api/admin/* routes
+  - [ ] Middleware: `authorize('ADMIN', 'STAFF')`
+  - [ ] Test that non-admin users can't access
+
+- [ ] **Admin Redirect**
+  - [ ] Detect if user is ADMIN/STAFF
+  - [ ] Add "Admin Panel" link to main nav (only for admins)
+  - [ ] Redirect to /admin/dashboard
+  - [ ] Protect /admin/* pages from non-admin users
+
+---
+
+### B. Admin Dashboard
+
+- [ ] **Dashboard Page (`/admin`)**
+  - [ ] Create `/admin/page.tsx`
+  - [ ] Display metrics:
+    - [ ] Today's revenue (sum of paid orders)
+    - [ ] Today's orders count
+    - [ ] Average order value
+    - [ ] Total customers
+    - [ ] Repeat customer rate (optional)
+  - [ ] Display recent orders table (last 10)
+  - [ ] Display low stock alerts
+  - [ ] Quick action buttons: View Orders, View Products, etc.
+  - [ ] Backend: GET /api/admin/dashboard/metrics
+
+- [ ] **Admin Components**
+  - [ ] Create `components/admin/StatsCard.tsx` (metric card)
+  - [ ] Create `components/admin/InventoryAlertBanner.tsx`
+  - [ ] Create `components/admin/OrderTable.tsx`
+  - [ ] Create `components/admin/AdminNav.tsx` (sidebar)
+
+---
+
+### C. Product Management
+
+- [ ] **Product List (`/admin/products`)**
+  - [ ] Create `/admin/products/page.tsx`
+  - [ ] Fetch products: GET /api/admin/products
+  - [ ] Display in table: name, SKU, category, stock, price, actions
+  - [ ] Edit button → `/admin/products/:id/edit`
+  - [ ] Delete button (confirm modal)
+  - [ ] View button (open product detail)
+  - [ ] Pagination (20 per page)
+  - [ ] Search by name/SKU
+  - [ ] Filter by category
+
+- [ ] **Create Product (`/admin/products/new`)**
+  - [ ] Create `/admin/products/new/page.tsx`
+  - [ ] Form fields:
+    - [ ] Name, description, short description
+    - [ ] SKU, category, subcategory
+    - [ ] Price, discount %, final price (auto-calc)
+    - [ ] Stock quantity, low stock threshold
+    - [ ] Material, weight, dimensions
+    - [ ] Care instructions
+    - [ ] Meta title, meta description
+    - [ ] Active checkbox
+    - [ ] Featured checkbox
+  - [ ] Image upload (Cloudinary integration)
+  - [ ] Multiple images support (set primary)
+  - [ ] Validation with Zod
+  - [ ] Submit: POST /api/admin/products
+  - [ ] Success: redirect to product detail
+
+- [ ] **Edit Product (`/admin/products/:id/edit`)**
+  - [ ] Create `/admin/products/[id]/edit/page.tsx`
+  - [ ] Fetch product: GET /api/products/:id
+  - [ ] Pre-fill form with current data
+  - [ ] Same fields as create
+  - [ ] Image management: add/remove/reorder
+  - [ ] Submit: PUT /api/admin/products/:id
+  - [ ] Success: redirect to product detail
+
+- [ ] **Product Form Component**
+  - [ ] Create `components/admin/ProductForm.tsx`
+  - [ ] Reusable for create & edit
+  - [ ] Handle image upload to Cloudinary
+  - [ ] Auto-calculate final price (price - (price * discount%))
+  - [ ] Form validation
+  - [ ] Loading & error states
+
+---
+
+### D. Category Management
+
+- [ ] **Category List (`/admin/categories`)**
+  - [ ] Create `/admin/categories/page.tsx`
+  - [ ] Fetch categories: GET /api/admin/categories
+  - [ ] Display in table/tree view (show parent/child)
+  - [ ] Edit & delete buttons
+  - [ ] Add new category button
+
+- [ ] **Create/Edit Category**
+  - [ ] Name, slug, description
+  - [ ] Parent category (for subcategories)
+  - [ ] Banner image (optional)
+  - [ ] Sort order
+  - [ ] Active checkbox
+  - [ ] Backend: POST /api/admin/categories, PUT /api/admin/categories/:id
+
+---
+
+### E. Order Management
+
+- [ ] **Order List (`/admin/orders`)**
+  - [ ] Create `/admin/orders/page.tsx`
+  - [ ] Fetch orders: GET /api/admin/orders
+  - [ ] Display in table:
+    - [ ] Order number, customer name, total, status, date
+    - [ ] Payment status (Pending, Paid, Failed)
+    - [ ] Click to view detail
+  - [ ] Filter by status (Pending, Paid, Processing, Shipped, Delivered, Cancelled)
+  - [ ] Filter by date range
+  - [ ] Search by order number
+  - [ ] Pagination
+  - [ ] Bulk actions: Mark as Shipped (optional)
+
+- [ ] **Order Detail (`/admin/orders/:id`)**
+  - [ ] Create `/admin/orders/[id]/page.tsx`
+  - [ ] Fetch order: GET /api/admin/orders/:id
+  - [ ] Display order info:
+    - [ ] Order number, date, status
+    - [ ] Customer info (name, email, phone)
+    - [ ] Items table (product, qty, unit price, discount, total)
+    - [ ] Addresses (shipping & billing)
+    - [ ] Order totals breakdown
+    - [ ] Payment status & transaction ID
+  - [ ] Order timeline (Pending → Paid → Processing → Shipped → Delivered)
+  - [ ] Status update dropdown (only valid transitions):
+    - [ ] PENDING → PROCESSING (or CANCELLED)
+    - [ ] PROCESSING → SHIPPED
+    - [ ] SHIPPED → DELIVERED
+  - [ ] Tracking number input (appear after mark as shipped)
+  - [ ] Notes textarea (internal notes)
+  - [ ] Cancel button (if PENDING/PROCESSING)
+  - [ ] Print button (shipping label)
+  - [ ] Backend: PUT /api/admin/orders/:id/status
+
+---
+
+### F. Return Management
+
+- [ ] **Return List (`/admin/returns`)**
+  - [ ] Create `/admin/returns/page.tsx`
+  - [ ] Fetch returns: GET /api/admin/returns
+  - [ ] Display table:
+    - [ ] Return ID, order number, customer, reason, status, date
+    - [ ] Click to view detail
+  - [ ] Filter by status (Requested, Approved, Rejected, Refunded)
+  - [ ] Pagination
+
+- [ ] **Return Detail & Approval**
+  - [ ] Create `/admin/returns/[id]/page.tsx`
+  - [ ] Show return request details:
+    - [ ] Reason, description
+    - [ ] Order items affected
+    - [ ] Refund amount (sum of item prices)
+  - [ ] Status: REQUESTED, APPROVED, REJECTED, REFUNDED
+  - [ ] Approve button:
+    - [ ] Trigger Razorpay refund API
+    - [ ] Update Payment.status = REFUNDED
+    - [ ] Restock inventory
+    - [ ] Send customer notification email
+  - [ ] Reject button (with reason input)
+  - [ ] Backend: POST /api/admin/returns/:id/approve, POST /api/admin/returns/:id/reject
+
+---
+
+### G. Admin API Endpoints
+
+- [ ] **Dashboard**
+  - [ ] GET /api/admin/dashboard/metrics
+
+- [ ] **Products**
+  - [ ] GET /api/admin/products (list)
+  - [ ] POST /api/admin/products (create)
+  - [ ] PUT /api/admin/products/:id (update)
+  - [ ] DELETE /api/admin/products/:id (delete)
+
+- [ ] **Categories**
+  - [ ] GET /api/admin/categories (list)
+  - [ ] POST /api/admin/categories (create)
+  - [ ] PUT /api/admin/categories/:id (update)
+  - [ ] DELETE /api/admin/categories/:id (delete)
+
+- [ ] **Orders**
+  - [ ] GET /api/admin/orders (list, filterable)
+  - [ ] GET /api/admin/orders/:id (detail)
+  - [ ] PUT /api/admin/orders/:id/status (update status)
+  - [ ] POST /api/admin/orders/:id/cancel (cancel)
+
+- [ ] **Returns**
+  - [ ] GET /api/admin/returns (list, filterable)
+  - [ ] GET /api/admin/returns/:id (detail)
+  - [ ] POST /api/admin/returns/:id/approve (approve & refund)
+  - [ ] POST /api/admin/returns/:id/reject (reject)
+
+---
+
+## 🔁 PHASE 6: RETURNS & REFUNDS (Week 7-8)
+
+### A. Customer Return Requests
+
+- [ ] **Request Return UI** (in order detail)
+  - [ ] Add "Request Return" button (if order DELIVERED)
+  - [ ] Modal/page with form:
+    - [ ] Reason dropdown (Defective, Size mismatch, Changed mind, etc.)
+    - [ ] Description textarea
+    - [ ] Submit button
+  - [ ] Success message
+  - [ ] Backend: POST /api/returns
+
+- [ ] **Backend Return Creation**
+  - [ ] Create POST /api/returns endpoint
+  - [ ] Validate order is DELIVERED
+  - [ ] Create Return record (status: REQUESTED)
+  - [ ] Create notification for admin
+  - [ ] Send email to customer: "Return request received"
+
+---
+
+### B. Admin Return Approval
+
+- [ ] **Approve Return**
+  - [ ] Admin clicks "Approve" in return detail
+  - [ ] Confirmation modal
+  - [ ] On confirm:
+    - [ ] Call Razorpay refunds API
+    - [ ] Update Payment.status = REFUNDED
+    - [ ] Update Return.status = APPROVED
+    - [ ] Restock inventory (add back product quantities)
+    - [ ] Create notification for customer
+    - [ ] Send email: "Return approved, refund processed"
+  - [ ] Backend: POST /api/admin/returns/:id/approve
+
+- [ ] **Reject Return**
+  - [ ] Admin clicks "Reject" in return detail
+  - [ ] Modal to enter rejection reason
+  - [ ] On confirm:
+    - [ ] Update Return.status = REJECTED
+    - [ ] Create notification for customer
+    - [ ] Send email: "Return rejected. Reason: ..."
+  - [ ] Backend: POST /api/admin/returns/:id/reject
+
+---
+
+### C. Refund Processing
+
+- [ ] **Razorpay Refund Integration**
+  - [ ] Implement refund API call in payment controller
+  - [ ] Handle refund success/failure
+  - [ ] Update Payment.status = REFUNDED
+  - [ ] Support partial refunds (optional, for later)
+
+- [ ] **Inventory Restock**
+  - [ ] Call inventory.restockInventory() when return approved
+  - [ ] Update Product.stockQuantity to original
+  - [ ] Create notification if product was low-stock (now in stock)
+
+---
+
+## 🔒 PHASE 7: SECURITY & HARDENING (Week 8-9)
+
+### A. Security Checklist
+
+- [ ] **Payment Security**
+  - [ ] Razorpay webhook signature verification working
+  - [ ] Raw body parsing for webhook (not JSON-only)
+  - [ ] No payment status updates from frontend
+  - [ ] Inventory deducted only on webhook
+  - [ ] Duplicate payment prevention (idempotency)
+  - [ ] Rate limiting on /api/payments/* endpoints
+  - [ ] All payment endpoints require auth (except webhook)
+
+- [ ] **Admin Security**
+  - [ ] All /api/admin/* routes role-protected
+  - [ ] Refund processing requires admin auth
+  - [ ] Audit logging of admin actions
+  - [ ] Admin endpoints tested for unauthorized access
+
+- [ ] **Auth Security**
+  - [ ] JWT_SECRET in .env (not hardcoded)
+  - [ ] Password reset tokens expire (1 hour)
+  - [ ] All passwords hashed with bcrypt
+  - [ ] Rate limiting on /api/auth/* endpoints
+  - [ ] Input validation with Zod schemas
+  - [ ] Logout endpoint working
+
+- [ ] **API Security**
+  - [ ] CORS properly configured (check origins)
+  - [ ] No hardcoded secrets in code
+  - [ ] Sensitive data not logged
+  - [ ] API error messages don't leak info
+  - [ ] No SQL injection (Prisma prevents)
+  - [ ] Request size limits configured
+
+- [ ] **Frontend Security**
+  - [ ] No localStorage access at module level
+  - [ ] API client interceptors secure
+  - [ ] Token handled safely (not exposed)
+  - [ ] Sensitive routes protected by auth checks
+  - [ ] No plaintext passwords in logs
+
+- [ ] **Database Security**
+  - [ ] All migrations tested
+  - [ ] Backups configured
+  - [ ] Backup tested (can restore)
+  - [ ] Sensitive data encrypted (passwords)
+  - [ ] Database user with limited permissions
+
+---
+
+### B. Code Quality
+
+- [ ] **Code Review**
+  - [ ] No hardcoded values (use env vars)
+  - [ ] Proper error handling everywhere
+  - [ ] Comments on complex logic
+  - [ ] Consistent code style
+  - [ ] TypeScript strict mode enabled
+
+- [ ] **Testing**
+  - [ ] All critical flows tested manually
+  - [ ] Payment flow end-to-end
+  - [ ] Auth flows (register, login, forgot password)
+  - [ ] Order creation & cancellation
+  - [ ] Return & refund process
+  - [ ] Admin operations
+
+- [ ] **Logging & Monitoring**
+  - [ ] Error logging configured
+  - [ ] Payment events logged
+  - [ ] Webhook deliveries logged
+  - [ ] Admin actions logged (audit trail)
+  - [ ] No sensitive data in logs
+
+---
+
+### C. Deployment Preparation
+
+- [ ] **Docker**
+  - [ ] Backend Dockerfile optimized (multi-stage, non-root user)
+  - [ ] Frontend Dockerfile optimized
+  - [ ] Both have healthchecks
+  - [ ] docker-compose.yml complete
+  - [ ] Tested locally: `docker-compose up`
+
+- [ ] **Environment**
+  - [ ] .env.example created (no secrets)
+  - [ ] All required vars in .env.example
+  - [ ] .gitignore includes .env files
+  - [ ] Environment validation in server startup
+
+- [ ] **Documentation**
+  - [ ] README updated with setup steps
+  - [ ] API documentation (Postman/OpenAPI)
+  - [ ] Deployment guide written
+  - [ ] Database backup procedure documented
+  - [ ] Troubleshooting guide created
+
+---
+
+## 🚀 PHASE 8: LAUNCH (Week 9-10)
+
+### A. Pre-Launch Setup
+
+- [ ] **Razorpay Production**
+  - [ ] Razorpay account upgraded to production
+  - [ ] Production keys obtained
+  - [ ] Webhook URL configured in Razorpay dashboard
+  - [ ] Webhook secret stored securely
+
+- [ ] **Infrastructure**
+  - [ ] VPS/hosting selected & provisioned
+  - [ ] Domain purchased & DNS configured
+  - [ ] SSL certificate obtained (Let's Encrypt)
+  - [ ] Database backup automated
+  - [ ] Monitoring & alerts configured
+
+- [ ] **Database**
+  - [ ] Production database created & configured
+  - [ ] Migrations applied: `prisma migrate deploy`
+  - [ ] Backups tested (restore & verify)
+  - [ ] Connection pooling configured (PgBouncer or similar)
+
+---
+
+### B. Deployment
+
+- [ ] **Build & Deploy**
+  - [ ] Backend Docker image built & tested
+  - [ ] Frontend Docker image built & tested
+  - [ ] docker-compose tested on VPS
+  - [ ] Containers start & stay up
+  - [ ] Healthchecks passing
+
+- [ ] **Production Verification**
+  - [ ] Backend health check: GET /health → 200
+  - [ ] Frontend loads without errors
+  - [ ] API endpoints accessible
+  - [ ] Database connection working
+  - [ ] Email notifications working
+
+- [ ] **Payment Test**
+  - [ ] Create test order
+  - [ ] Complete payment with Razorpay test card
+  - [ ] Verify webhook received
+  - [ ] Verify order marked as PAID
+  - [ ] Verify email sent
+  - [ ] Check error logs (should be empty)
+
+---
+
+### C. Post-Launch
+
+- [ ] **Monitoring**
+  - [ ] Application logs aggregated (ELK / Datadog)
+  - [ ] Error tracking enabled (Sentry or similar)
+  - [ ] Uptime monitoring configured
+  - [ ] Payment errors alert configured
+  - [ ] Database performance monitored
+
+- [ ] **Operations**
+  - [ ] Backup verification: automated & tested weekly
+  - [ ] Log review: daily for errors
+  - [ ] User feedback collected
+  - [ ] Issues tracked & prioritized
+  - [ ] Patch deployment process defined
+
+---
+
+## 📈 Additional Features (Phase 2+)
+
+### Nice-to-Have (Not blocking launch)
+
+- [ ] Coupon/promo code system
+  - [ ] Backend: apply coupon logic in checkout
+  - [ ] Frontend: coupon input in checkout
+  - [ ] Admin: create/manage coupons
+
+- [ ] Email Notifications (enhance)
+  - [ ] Order confirmation (with order details)
+  - [ ] Payment received
+  - [ ] Order shipped (with tracking)
+  - [ ] Order delivered
+  - [ ] Return approved
+  - [ ] Refund processed
+
+- [ ] Product Reviews & Ratings
+  - [ ] Customer leave review (after delivery)
+  - [ ] Admin approve/reject reviews
+  - [ ] Display reviews on PDP
+  - [ ] Star rating display
+
+- [ ] Search & Filters (advanced)
+  - [ ] Full-text search
+  - [ ] Faceted search (color, size, etc.)
+  - [ ] Recently viewed products
+  - [ ] Wishlist to cart conversion
+
+- [ ] Customer Features
+  - [ ] Favorites/saved items
+  - [ ] Order notes
+  - [ ] Gift wrapping option
+  - [ ] Bulk ordering
+
+- [ ] Mobile App (React Native)
+  - [ ] Reuse backend APIs
+  - [ ] Native checkout flow
+  - [ ] Push notifications
+
+---
+
+## 🎯 Success Criteria
+
+### Week 1-2 (Payment)
+- ✅ Razorpay integration complete
+- ✅ Webhook working with signature verification
+- ✅ Payment creates order & deducts inventory
+- ✅ First payment processed successfully
+
+### Week 2-3 (Checkout)
+- ✅ Customers can complete checkout from UI
+- ✅ Address selection working
+- ✅ Order summary accurate
+- ✅ Success page shows order confirmation
+
+### Week 3-4 (Accounts)
+- ✅ Users can register & login
+- ✅ Customers can view order history
+- ✅ Customers can manage addresses
+- ✅ Forgot password flow working
+
+### Week 4-5 (Catalog)
+- ✅ Products load with real data
+- ✅ Category & price filters working
+- ✅ Search functional
+- ✅ PDP shows all details
+
+### Week 5-7 (Admin)
+- ✅ Admin dashboard shows metrics
+- ✅ Can CRUD products
+- ✅ Can manage categories
+- ✅ Can view & update orders
+- ✅ Can approve returns
+
+### Week 7-8 (Returns)
+- ✅ Customers can request returns
+- ✅ Admin can approve & refund
+- ✅ Inventory restocked on return
+- ✅ Refund processed via Razorpay
+
+### Week 8-9 (Security)
+- ✅ Security audit passed
+- ✅ All test scenarios passed
+- ✅ Logs clean of errors
+- ✅ Docker images optimized
+
+### Week 9-10 (Launch)
+- ✅ Live on production
+- ✅ All critical flows working
+- ✅ Monitoring active
+- ✅ Backups automated
+
+---
+
+## 📞 Contact & Support
+
+**Questions on implementation?**
+- Review COMPLETION_ROADMAP.md for detailed specs
+- Check IMPLEMENTATION_SNIPPETS.md for code examples
+- Refer to QUICK_REFERENCE.md for API endpoints
+
+**Need help?**
+- Test locally first with Razorpay test mode
+- Check backend logs: `docker logs -f ora-backend`
+- Check frontend console: browser DevTools
+- Verify database: `docker exec ora-db psql -U postgres -d oradb -c "SELECT * FROM orders;"`
+
+---
+
+**Status:** Ready to start Phase 1! 🚀
+
+Print this checklist and track progress as you complete each phase.
