@@ -378,7 +378,8 @@ export const refundPayment = asyncHandler(async (req: Request, res: Response) =>
         status: 'REFUNDED',
         gatewayResponse: {
           ...(typeof payment.gatewayResponse === 'object' ? payment.gatewayResponse : {}),
-          refund: refund,
+          refundId: refund.id,
+          refundStatus: refund.status,
           refundedAt: new Date().toISOString(),
         },
       },
