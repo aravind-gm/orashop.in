@@ -38,7 +38,7 @@ exports.createPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
     if (order.status !== 'PENDING') {
         throw new helpers_1.AppError('Order is not in PENDING state', 400);
     }
-    if (order.paymentStatus === 'PAID' || order.paymentStatus === 'CONFIRMED') {
+    if (order.paymentStatus === 'PAID') {
         throw new helpers_1.AppError('Order is already paid', 400);
     }
     // Check if payment record already exists for this order
@@ -323,7 +323,8 @@ exports.refundPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
                 status: 'REFUNDED',
                 gatewayResponse: {
                     ...(typeof payment.gatewayResponse === 'object' ? payment.gatewayResponse : {}),
-                    refund: refund,
+                    refundId: refund.id,
+                    refundStatus: refund.status,
                     refundedAt: new Date().toISOString(),
                 },
             },

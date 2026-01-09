@@ -4,7 +4,6 @@ exports.requestReturn = exports.cancelOrder = exports.getOrderById = exports.get
 const library_1 = require("@prisma/client/runtime/library");
 const database_1 = require("../config/database");
 const helpers_1 = require("../utils/helpers");
-const helpers_2 = require("../utils/helpers");
 const inventory_1 = require("../utils/inventory");
 exports.checkout = (0, helpers_1.asyncHandler)(async (req, res) => {
     const { shippingAddressId, billingAddressId } = req.body;
@@ -46,13 +45,13 @@ exports.checkout = (0, helpers_1.asyncHandler)(async (req, res) => {
     for (const item of cartItems) {
         subtotal += Number(item.product.finalPrice) * item.quantity;
     }
-    const gstAmount = (0, helpers_2.calculateGST)(subtotal);
+    const gstAmount = (0, helpers_1.calculateGST)(subtotal);
     const shippingFee = subtotal >= 1000 ? 0 : 50;
     const totalAmount = subtotal + gstAmount + shippingFee;
     // Create order
     const order = await database_1.prisma.order.create({
         data: {
-            orderNumber: (0, helpers_2.generateOrderNumber)(),
+            orderNumber: (0, helpers_1.generateOrderNumber)(),
             userId: req.user.id,
             subtotal: new library_1.Decimal(subtotal),
             gstAmount: new library_1.Decimal(gstAmount),

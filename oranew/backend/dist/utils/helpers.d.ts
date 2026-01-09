@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../middleware/errorHandler';
 export declare const asyncHandler: (fn: (req: any, res: Response, next?: NextFunction) => Promise<any>) => (req: Request, res: Response, next: NextFunction) => void;
 export { AppError };
