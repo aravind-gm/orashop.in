@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
 import crypto from 'crypto';
+import { Request, Response } from 'express';
 import Razorpay from 'razorpay';
 import { prisma } from '../config/database';
 import { AppError, asyncHandler } from '../utils/helpers';
-import { confirmInventoryDeduction, releaseInventoryLocks } from '../utils/inventory';
+import { confirmInventoryDeduction } from '../utils/inventory';
 
 // Initialize Razorpay instance
 const razorpay = new Razorpay({

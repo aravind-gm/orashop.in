@@ -1,10 +1,8 @@
-import { NextFunction, Response } from 'express';
 import { Decimal } from '@prisma/client/runtime/library';
+import { Response } from 'express';
 import { prisma } from '../config/database';
 import { AuthRequest } from '../middleware/auth';
-import { AppError, asyncHandler } from '../utils/helpers';
-import { getOrderConfirmationTemplate, sendEmail } from '../utils/email';
-import { calculateGST, generateOrderNumber } from '../utils/helpers';
+import { AppError, asyncHandler, calculateGST, generateOrderNumber } from '../utils/helpers';
 import { lockInventory } from '../utils/inventory';
 
 export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => {
