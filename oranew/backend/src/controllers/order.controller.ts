@@ -32,17 +32,22 @@ export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => 
       throw new AppError('Shipping address is incomplete', 400);
     }
 
+    // Fetch full user info for address
+    const fullUser = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+    });
+
     // Create new address for user
     const newAddress = await prisma.address.create({
       data: {
         userId: req.user!.id,
-        fullName: `${req.user!.firstName} ${req.user!.lastName}`,
+        fullName: fullUser?.fullName || 'Customer',
         addressLine1: street,
         city,
         state,
         pincode: zipCode,
         country: country || 'India',
-        phone: req.user!.phone || '',
+        phone: fullUser?.phone || '',
         isDefault: false,
       },
     });

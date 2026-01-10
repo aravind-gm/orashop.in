@@ -74,6 +74,27 @@ app.get('/', (_req: Request, res: Response) => {
   });
 });
 
+// API info endpoint
+app.get('/api', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
+    message: 'ORA Jewellery API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      products: '/api/products',
+      categories: '/api/categories',
+      cart: '/api/cart',
+      orders: '/api/orders',
+      payments: '/api/payments',
+      users: '/api/users',
+      wishlist: '/api/wishlist',
+      reviews: '/api/reviews',
+      admin: '/api/admin',
+    },
+  });
+});
+
 // Health check
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

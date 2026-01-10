@@ -69,6 +69,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response) =>
       success: true,
       paymentId: existingPayment.id,
       razorpayOrderId: existingPayment.transactionId,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID,
       amount: Number(order.totalAmount) * 100, // Razorpay expects amount in paise
       currency: 'INR',
       key: process.env.RAZORPAY_KEY_ID,
@@ -111,6 +112,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response) =>
     success: true,
     paymentId: payment.id,
     razorpayOrderId: razorpayOrder.id,
+    razorpayKeyId: process.env.RAZORPAY_KEY_ID,
     amount: razorpayOrder.amount,
     currency: razorpayOrder.currency,
     key: process.env.RAZORPAY_KEY_ID,

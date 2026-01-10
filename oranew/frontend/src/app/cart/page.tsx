@@ -104,7 +104,7 @@ export default function CartPage() {
                     {/* Quantity Selector */}
                     <div className="flex items-center gap-2 mb-2">
                       <button
-                        onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                        onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
                         className="px-2 py-1 border rounded hover:bg-gray-100"
                       >
                         -
@@ -112,12 +112,12 @@ export default function CartPage() {
                       <input
                         type="number"
                         value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                        onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value) || 1)}
                         className="w-12 text-center border rounded px-2 py-1"
                         min="1"
                       />
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         className="px-2 py-1 border rounded hover:bg-gray-100"
                       >
                         +
@@ -134,7 +134,7 @@ export default function CartPage() {
                       ₹{item.price.toFixed(2)} each
                     </p>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.productId)}
                       className="text-red-600 hover:text-red-700 text-sm font-medium"
                     >
                       Remove

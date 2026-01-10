@@ -78,9 +78,9 @@ export default function CheckoutPage() {
         throw new Error('Please fill in all address fields');
       }
 
-      // Prepare order items
+      // Prepare order items - use productId for the backend
       const orderItems = items.map(item => ({
-        productId: item.id,
+        productId: item.productId || item.id,
         quantity: item.quantity,
       }));
 
@@ -352,7 +352,7 @@ export default function CheckoutPage() {
 
             <div className="mt-6 p-3 bg-blue-50 rounded-lg">
               <p className="text-xs text-blue-700">
-                💳 <strong>Test Card:</strong> 4111 1111 1111 1111, Exp: 12/25, CVV: 123
+                💳 <strong>Test Card:</strong> 4111 1111 1111 1111, Exp: 12/26, CVV: 123
               </p>
             </div>
           </div>
