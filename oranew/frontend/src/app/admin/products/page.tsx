@@ -1,7 +1,7 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ interface Product {
 
 export default function AdminProductsPage() {
   const router = useRouter();
-  const { token, user } = authStore();
+  const { token, user } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 

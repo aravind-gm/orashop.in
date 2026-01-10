@@ -1,14 +1,14 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setToken, setUser } = authStore();
+  const { setToken, setUser } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,8 +22,9 @@ export default function LoginPage() {
     try {
       const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
-        setToken(response.data.token);
-        setUser(response.data.user);
+        const { user, token } = response.data.data;
+        setToken(token);
+        setUser(user);
         router.push('/account/orders');
       }
     } catch (err: any) {

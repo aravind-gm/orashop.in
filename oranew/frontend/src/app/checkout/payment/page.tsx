@@ -1,24 +1,33 @@
 'use client';
 
 import api from '@/lib/api';
-import { authStore } from '@/store/authStore';
-import { cartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
+import { useCartStore } from '@/store/cartStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
+interface ShippingAddress {
+  fullName: string;
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 }
 
 export default function CheckoutPaymentPage() {
   const router = useRouter();
-  const { items, total, clear } = cartStore();
-  const { token } = authStore();
+  const { items, totalPrice, clearCart } = useCartStore();
+  const { token } = useAuthStore();
   const [loading, setLoading] = useState(false);
-  const [shippingAddress, setShippingAddress] = useState(null);
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
   const [useNewAddress, setUseNewAddress] = useState(false);
   const [newAddress, setNewAddress] = useState({
     fullName: '',
@@ -63,7 +72,7 @@ export default function CheckoutPaymentPage() {
           price: item.price,
         })),
         shippingAddress: useNewAddress ? newAddress : shippingAddress,
-        total: total,
+        total: totalPrice,
       };
 
       const orderResponse = await api.post('/orders', orderData, {
@@ -73,14 +82,19 @@ export default function CheckoutPaymentPage() {
       const orderId = orderResponse.data.id;
 
       // Initialize Razorpay payment
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        throw new Error('Razorpay key not configured');
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(total * 100), // Razorpay expects amount in paise
+        key: razorpayKey,
+        amount: Math.round(totalPrice * 100), // Razorpay expects amount in paise
         currency: 'INR',
         order_id: orderId,
         name: 'OraShop',
         description: `Order ${orderId}`,
-        handler: async (response) => {
+        handler: async (response: RazorpayResponse) => {
           try {
             // Verify payment with backend
             const verifyResponse = await api.post(
@@ -95,7 +109,7 @@ export default function CheckoutPaymentPage() {
             );
 
             if (verifyResponse.data.success) {
-              clear();
+              clearCart();
               router.push(`/checkout/success?orderId=${orderId}`);
             }
           } catch (error) {
@@ -104,13 +118,17 @@ export default function CheckoutPaymentPage() {
           }
         },
         prefill: {
-          name: newAddress.fullName || shippingAddress?.fullName,
+          name: useNewAddress ? newAddress.fullName : shippingAddress?.fullName,
           email: token ? 'user@example.com' : '',
         },
         theme: {
           color: '#f97316',
         },
       };
+
+      if (!window.Razorpay) {
+        throw new Error('Razorpay not loaded');
+      }
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
@@ -202,7 +220,7 @@ export default function CheckoutPaymentPage() {
                     <button
                       type="button"
                       onClick={() => {
-                        setShippingAddress(newAddress);
+                        setShippingAddress({ ...newAddress });
                         setUseNewAddress(false);
                       }}
                       className="w-full bg-orange-600 text-white py-2 rounded-lg hover:bg-orange-700 font-semibold"
@@ -241,7 +259,7 @@ export default function CheckoutPaymentPage() {
               <div className="border-t border-gray-200 pt-6">
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Subtotal</span>
-                  <span>₹{total}</span>
+                  <span>₹{totalPrice}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Shipping</span>
@@ -249,7 +267,7 @@ export default function CheckoutPaymentPage() {
                 </div>
                 <div className="flex justify-between text-lg font-bold mt-4 pt-4 border-t">
                   <span>Total</span>
-                  <span>₹{total}</span>
+                  <span>₹{totalPrice}</span>
                 </div>
               </div>
             </div>

@@ -1,8 +1,9 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { cartStore } from '@/store/cartStore';
-import { wishlistStore } from '@/store/wishlistStore';
+import api from '@/lib/api';
+import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -25,25 +26,25 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const { addItem } = cartStore();
-  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = wishlistStore();
+  const { addItem } = useCartStore();
+  const { items: wishlistItems, addItem: addToWishlist, removeItem: removeFromWishlist } = useWishlistStore();
 
   useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await api.get(`/products/${params.slug}`);
+        if (response.data.success) {
+          setProduct(response.data.product);
+        }
+      } catch (err) {
+        console.error('Failed to fetch product:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProduct();
   }, [params.slug]);
-
-  const fetchProduct = async () => {
-    try {
-      const response = await api.get(`/products/${params.slug}`);
-      if (response.data.success) {
-        setProduct(response.data.product);
-      }
-    } catch (err) {
-      console.error('Failed to fetch product');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -66,12 +67,17 @@ export default function ProductDetailPage() {
     );
   }
 
-  const isInWishlist = wishlistItems.some((item) => item.id === product.id);
+  const isInWishlist = wishlistItems.some((item) => item.productId === product.id);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem(product);
-    }
+    addItem({
+      id: crypto.randomUUID(),
+      productId: product.id,
+      name: product.name,
+      image: product.image || '',
+      price: product.price,
+      quantity: quantity,
+    });
   };
 
   return (
@@ -83,12 +89,15 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Product Image */}
-          <div className="bg-background-white rounded-luxury shadow-luxury flex items-center justify-center h-96">
+          <div className="bg-background-white rounded-luxury shadow-luxury flex items-center justify-center h-96 relative overflow-hidden">
             {product.image ? (
-              <img
+              <Image
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover rounded-luxury"
+                fill
+                className="object-cover rounded-luxury"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
               />
             ) : (
               <span className="text-text-muted">No Image Available</span>
@@ -168,7 +177,14 @@ export default function ProductDetailPage() {
               </button>
               <button
                 onClick={() =>
-                  isInWishlist ? removeFromWishlist(product.id) : addToWishlist(product)
+                  isInWishlist ? removeFromWishlist(product.id) : addToWishlist({
+                    id: product.id,
+                    productId: product.id,
+                    slug: product.slug,
+                    name: product.name,
+                    image: product.image || '',
+                    price: product.price,
+                  })
                 }
                 className={`px-6 py-3 rounded-luxury font-semibold border-2 transition ${
                   isInWishlist

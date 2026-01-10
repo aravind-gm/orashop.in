@@ -1,7 +1,7 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ interface Order {
 export default function OrderDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { token } = authStore();
+  const { token } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -52,7 +52,7 @@ export default function OrderDetailPage() {
         setOrder(response.data.order);
       }
     } catch (err) {
-      console.error('Failed to fetch order');
+      console.error('Failed to fetch order:', err);
     } finally {
       setLoading(false);
     }

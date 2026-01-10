@@ -1,14 +1,14 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { setToken, setUser } = authStore();
+  const { setToken, setUser } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,13 +22,14 @@ export default function AdminLoginPage() {
     try {
       const response = await api.post('/auth/login', { email, password });
       if (response.data.success) {
+        const { user, token } = response.data.data;
         // Check if user is admin
-        if (response.data.user.role !== 'ADMIN') {
+        if (user.role !== 'ADMIN') {
           setError('Admin access required');
           return;
         }
-        setToken(response.data.token);
-        setUser(response.data.user);
+        setToken(token);
+        setUser(user);
         router.push('/admin');
       }
     } catch (err: any) {

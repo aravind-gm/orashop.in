@@ -1,7 +1,7 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,7 +15,7 @@ interface Order {
 
 export default function AccountPage() {
   const router = useRouter();
-  const { token, user, logout } = authStore();
+  const { token, user, logout } = useAuthStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +35,7 @@ export default function AccountPage() {
         setOrders(response.data.orders || []);
       }
     } catch (err) {
-      console.error('Failed to fetch orders');
+      console.error('Failed to fetch orders:', err);
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ export default function AccountPage() {
             <div className="p-4 bg-blue-50 rounded col-span-2 md:col-span-2">
               <p className="text-sm text-gray-600">Member Since</p>
               <p className="font-semibold">
-                {new Date(user.createdAt).toLocaleDateString()}
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
               </p>
             </div>
           </div>

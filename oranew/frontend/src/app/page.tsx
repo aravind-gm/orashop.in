@@ -1,77 +1,45 @@
-import CategoryShowcase from '@/components/home/CategoryShowcase';
-import FeaturedCollections from '@/components/home/FeaturedCollections';
 import Hero from '@/components/home/Hero';
 import NewArrivals from '@/components/home/NewArrivals';
 import Newsletter from '@/components/home/Newsletter';
 import Testimonials from '@/components/home/Testimonials';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background-white/95 backdrop-blur-sm border-b border-border">
-        <nav className="container-luxury py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/oralogo.png"
-                alt="ORA"
-                width={60}
-                height={60}
-                className="object-contain"
-              />
-              <div>
-                <div className="text-2xl font-serif font-semibold text-text-primary">ORA</div>
-                <div className="text-xs text-text-muted tracking-wider">own. radiate. adorn.</div>
-              </div>
-            </Link>
-
-            {/* Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <Link href="/products" className="link-luxury text-sm font-medium">Collections</Link>
-              <Link href="/products/new" className="link-luxury text-sm font-medium">New Arrivals</Link>
-              <Link href="/about" className="link-luxury text-sm font-medium">About</Link>
-              <Link href="/contact" className="link-luxury text-sm font-medium">Contact</Link>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-4">
-              <Link href="/search" className="btn-ghost text-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </Link>
-              <Link href="/wishlist" className="btn-ghost text-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </Link>
-              <Link href="/cart" className="btn-ghost text-sm relative">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">0</span>
-              </Link>
-              <Link href="/profile" className="btn-outline text-sm hidden lg:inline-block">Profile</Link>
-            </div>
-          </div>
-        </nav>
-      </header>
-
+    <main>
       {/* Hero Section */}
       <Hero />
 
       {/* Featured Collections */}
-      <FeaturedCollections />
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 className="text-3xl font-bold mb-8">Featured Collections</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+              <div className="p-6 text-white">
+                <h3 className="text-2xl font-bold">Earrings</h3>
+              </div>
+            </div>
+          </Link>
+          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+              <div className="p-6 text-white">
+                <h3 className="text-2xl font-bold">Necklaces</h3>
+              </div>
+            </div>
+          </Link>
+          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+              <div className="p-6 text-white">
+                <h3 className="text-2xl font-bold">Bracelets</h3>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       {/* New Arrivals */}
       <NewArrivals />
-
-      {/* Category Showcase */}
-      <CategoryShowcase />
 
       {/* Testimonials */}
       <Testimonials />
@@ -80,7 +48,7 @@ export default function HomePage() {
       <Newsletter />
 
       {/* Footer */}
-      <footer className="bg-text-primary text-background py-16">
+      <footer className="bg-text-primary text-white py-16">
         <div className="container-luxury">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
             {/* Brand */}

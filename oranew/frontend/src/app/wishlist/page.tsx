@@ -1,16 +1,34 @@
 'use client';
 
+import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
+import Image from 'next/image';
 import Link from 'next/link';
-import { wishlistStore } from '@/store/wishlistStore';
-import { cartStore } from '@/store/cartStore';
+
+interface WishlistItem {
+  id: string;
+  productId: string;
+  slug: string;
+  name: string;
+  image: string;
+  price: number;
+  description?: string;
+}
 
 export default function WishlistPage() {
-  const { items, removeItem } = wishlistStore();
-  const { addItem } = cartStore();
+  const { items, removeItem } = useWishlistStore();
+  const { addItem } = useCartStore();
 
-  const handleMoveToCart = (item: any) => {
-    addItem(item);
-    removeItem(item.id);
+  const handleMoveToCart = (item: WishlistItem) => {
+    addItem({
+      id: crypto.randomUUID(),
+      productId: item.productId,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: 1,
+    });
+    removeItem(item.productId);
   };
 
   return (
@@ -29,9 +47,9 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((item) => (
               <div key={item.id} className="bg-background-white rounded-luxury shadow-luxury overflow-hidden hover:shadow-luxury-lg transition">
-                <div className="h-48 bg-gray-200 flex items-center justify-center">
+                <div className="h-48 bg-gray-200 flex items-center justify-center relative">
                   {item.image ? (
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <Image src={item.image} alt={item.name} fill className="object-cover" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" unoptimized />
                   ) : (
                     <span className="text-text-muted">No Image</span>
                   )}
@@ -67,20 +85,6 @@ export default function WishlistPage() {
             ))}
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-            <svg className="w-24 h-24 mx-auto mb-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <h2 className="text-xl font-serif font-semibold mb-2">Your wishlist is empty</h2>
-            <p className="text-text-muted mb-6">Save your favorite items here!</p>
-            <a href="/products" className="btn-primary inline-block">
-              Browse Products
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   );

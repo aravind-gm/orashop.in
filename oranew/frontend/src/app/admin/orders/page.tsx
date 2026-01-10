@@ -1,27 +1,28 @@
 'use client';
 
 import api from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+interface Order {
+  id: string;
+  total: number;
+  status: string;
+  createdAt: string;
+  user?: {
+    email: string;
+  };
+}
 
 export default function AdminOrdersPage() {
   const router = useRouter();
-  const { token, user } = authStore();
-  const [orders, setOrders] = useState([]);
+  const { token, user } = useAuthStore();
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!token || user?.role !== 'ADMIN') {
-      router.push('/admin/login');
-      return;
-    }
-
-    fetchOrders();
-  }, [token, user, router]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const response = await api.get('/admin/orders', {
         headers: { Authorization: `Bearer ${token}` },
@@ -32,9 +33,18 @@ export default function AdminOrdersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const getStatusColor = (status) => {
+  useEffect(() => {
+    if (!token || user?.role !== 'ADMIN') {
+      router.push('/admin/login');
+      return;
+    }
+
+    fetchOrders();
+  }, [token, user, router, fetchOrders]);
+
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
         return 'bg-yellow-900 text-yellow-200';

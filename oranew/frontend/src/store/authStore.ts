@@ -5,7 +5,10 @@ interface User {
   id: string;
   email: string;
   fullName: string;
+  firstName?: string;
+  lastName?: string;
   role: string;
+  createdAt?: string;
 }
 
 interface AuthState {
@@ -15,6 +18,8 @@ interface AuthState {
   login: (user: User, token: string) => void;
   logout: () => void;
   updateUser: (user: User) => void;
+  setToken: (token: string) => void;
+  setUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -32,6 +37,13 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null, isAuthenticated: false });
       },
       updateUser: (user) => set({ user }),
+      setToken: (token) => {
+        localStorage.setItem('ora_token', token);
+        set({ token, isAuthenticated: true });
+      },
+      setUser: (user) => {
+        set({ user, isAuthenticated: true });
+      },
     }),
     {
       name: 'ora-auth',

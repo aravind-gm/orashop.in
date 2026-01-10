@@ -1,30 +1,48 @@
 'use client';
 
 import api from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+interface OrderItem {
+  product?: {
+    name: string;
+  };
+  quantity: number;
+  price: number;
+}
+
+interface ShippingAddress {
+  fullName: string;
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+}
+
+interface Order {
+  id: string;
+  status: string;
+  createdAt: string;
+  items?: OrderItem[];
+  shippingAddress?: ShippingAddress;
+  subtotal: number;
+  tax?: number;
+  total: number;
+}
 
 export default function AdminOrderDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { token, user } = authStore();
-  const [order, setOrder] = useState(null);
+  const { token, user } = useAuthStore();
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('');
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    if (!token || user?.role !== 'ADMIN') {
-      router.push('/admin/login');
-      return;
-    }
-
-    fetchOrder();
-  }, [token, user, router, params.id]);
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const response = await api.get(`/admin/orders/${params.id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -36,10 +54,19 @@ export default function AdminOrderDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, params.id]);
+
+  useEffect(() => {
+    if (!token || user?.role !== 'ADMIN') {
+      router.push('/admin/login');
+      return;
+    }
+
+    fetchOrder();
+  }, [token, user, router, fetchOrder]);
 
   const handleUpdateStatus = async () => {
-    if (status === order.status) return;
+    if (!order || status === order.status) return;
 
     setUpdating(true);
     try {
@@ -58,7 +85,7 @@ export default function AdminOrderDetailPage() {
     }
   };
 
-  const getStatusColor = (orderStatus) => {
+  const getStatusColor = (orderStatus: string) => {
     switch (orderStatus) {
       case 'PENDING':
         return 'bg-yellow-900 text-yellow-200';
@@ -127,7 +154,7 @@ export default function AdminOrderDetailPage() {
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Order Items</h2>
             <div className="space-y-4">
-              {order.items && order.items.map((item, idx) => (
+              {order.items && order.items.map((item: OrderItem, idx: number) => (
                 <div key={idx} className="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
                   <div>
                     <p className="font-semibold">{item.product?.name}</p>

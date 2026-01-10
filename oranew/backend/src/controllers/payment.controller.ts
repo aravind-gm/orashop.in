@@ -5,11 +5,25 @@ import { prisma } from '../config/database';
 import { AppError, asyncHandler } from '../utils/helpers';
 import { confirmInventoryDeduction } from '../utils/inventory';
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || '',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+// Initialize Razorpay instance lazily
+let razorpayInstance: Razorpay | null = null;
+
+const getRazorpay = (): Razorpay => {
+  if (!razorpayInstance) {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!keyId || !keySecret) {
+      throw new AppError('Razorpay credentials not configured', 500);
+    }
+    
+    razorpayInstance = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+  }
+  return razorpayInstance;
+};
 
 /**
  * Create a Razorpay payment order
@@ -68,7 +82,7 @@ export const createPayment = asyncHandler(async (req: Request, res: Response) =>
   }
 
   // Create Razorpay order
-  const razorpayOrder = await razorpay.orders.create({
+  const razorpayOrder = await getRazorpay().orders.create({
     amount: Math.round(Number(order.totalAmount) * 100), // Convert to paise
     currency: 'INR',
     receipt: order.orderNumber,
@@ -364,7 +378,7 @@ export const refundPayment = asyncHandler(async (req: Request, res: Response) =>
 
   try {
     // Call Razorpay refund API
-    const refund = await razorpay.payments.refund(payment.transactionId!, {
+    const refund = await getRazorpay().payments.refund(payment.transactionId!, {
       amount: Math.round(Number(amount) * 100), // Convert to paise
       notes: {
         reason: reason || 'Customer refund',

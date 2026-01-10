@@ -1,14 +1,14 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setToken, setUser } = authStore();
+  const { setToken, setUser } = useAuthStore();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',

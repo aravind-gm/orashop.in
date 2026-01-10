@@ -1,14 +1,14 @@
 'use client';
 
-import { authStore } from '@/store/authStore';
-import { cartStore } from '@/store/cartStore';
+import { useAuthStore } from '@/store/authStore';
+import { useCartStore } from '@/store/cartStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const router = useRouter();
-  const { items, totalPrice, removeItem, updateQuantity } = cartStore();
-  const { token } = authStore();
+  const { items, totalPrice, removeItem, updateQuantity } = useCartStore();
+  const { token } = useAuthStore();
 
   const handleCheckout = () => {
     if (!token) {

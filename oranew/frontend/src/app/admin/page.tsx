@@ -1,13 +1,13 @@
 'use client';
 
-import { authStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AdminPage() {
   const router = useRouter();
-  const { token, user, logout } = authStore();
+  const { token, user, logout } = useAuthStore();
 
   useEffect(() => {
     if (!token || user?.role !== 'ADMIN') {

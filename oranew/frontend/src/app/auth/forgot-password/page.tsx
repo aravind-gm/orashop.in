@@ -1,6 +1,6 @@
 'use client';
 
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import Link from 'next/link';
 import { useState } from 'react';
 

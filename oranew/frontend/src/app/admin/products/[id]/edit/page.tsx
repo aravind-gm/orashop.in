@@ -1,13 +1,13 @@
 'use client';
 
-import { authStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
-  const { token, user } = authStore();
+  const { token, user } = useAuthStore();
 
   if (!token || user?.role !== 'ADMIN') {
     router.push('/admin/login');

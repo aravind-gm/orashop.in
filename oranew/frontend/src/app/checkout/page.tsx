@@ -1,8 +1,8 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
-import { cartStore } from '@/store/cartStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
+import { useCartStore } from '@/store/cartStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -28,8 +28,8 @@ interface Order {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { token, user } = authStore();
-  const { items, totalPrice, clearCart } = cartStore();
+  const { token, user } = useAuthStore();
+  const { items, totalPrice, clearCart } = useCartStore();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

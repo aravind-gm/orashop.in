@@ -1,15 +1,21 @@
 'use client';
 
 import api from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const { token, user } = authStore();
-  const [categories, setCategories] = useState([]);
+  const { token, user } = useAuthStore();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [newCategory, setNewCategory] = useState({ name: '', slug: '' });
 
@@ -33,7 +39,7 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleAdd = async (e) => {
+  const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
     if (!newCategory.name.trim()) return;
 
@@ -49,7 +55,7 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDelete = async (categoryId) => {
+  const handleDelete = async (categoryId: string) => {
     if (!window.confirm('Are you sure?')) return;
     
     try {

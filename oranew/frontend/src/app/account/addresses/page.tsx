@@ -1,7 +1,7 @@
 'use client';
 
-import { api } from '@/lib/api';
-import { authStore } from '@/store/authStore';
+import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ interface Address {
 
 export default function AddressesPage() {
   const router = useRouter();
-  const { token } = authStore();
+  const { token } = useAuthStore();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -45,8 +45,8 @@ export default function AddressesPage() {
       if (response.data.success) {
         setAddresses(response.data.addresses || []);
       }
-    } catch (err) {
-      console.error('Failed to fetch addresses');
+    } catch (error) {
+      console.error('Failed to fetch addresses:', error);
     } finally {
       setLoading(false);
     }
@@ -61,8 +61,8 @@ export default function AddressesPage() {
         setForm({ street: '', city: '', state: '', zipCode: '', country: 'India' });
         setShowForm(false);
       }
-    } catch (err) {
-      console.error('Failed to add address');
+    } catch (error) {
+      console.error('Failed to add address:', error);
     }
   };
 
@@ -73,8 +73,8 @@ export default function AddressesPage() {
       if (response.data.success) {
         await fetchAddresses();
       }
-    } catch (err) {
-      console.error('Failed to delete address');
+    } catch (error) {
+      console.error('Failed to delete address:', error);
     }
   };
 

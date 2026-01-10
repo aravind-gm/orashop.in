@@ -5,24 +5,93 @@ import { AuthRequest } from '../middleware/auth';
 import { AppError, asyncHandler, calculateGST, generateOrderNumber } from '../utils/helpers';
 import { lockInventory } from '../utils/inventory';
 
-export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { shippingAddressId, billingAddressId } = req.body;
+interface ShippingAddressInput {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
 
-  if (!shippingAddressId || !billingAddressId) {
+interface CartItemInput {
+  productId: string;
+  quantity: number;
+}
+
+export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { shippingAddressId, billingAddressId, shippingAddress, items } = req.body;
+
+  let finalShippingAddrId = shippingAddressId;
+  let finalBillingAddrId = billingAddressId;
+
+  // Support inline address creation (for simpler checkout flow)
+  if (shippingAddress && !shippingAddressId) {
+    const { street, city, state, zipCode, country } = shippingAddress as ShippingAddressInput;
+    
+    if (!street || !city || !state || !zipCode) {
+      throw new AppError('Shipping address is incomplete', 400);
+    }
+
+    // Create new address for user
+    const newAddress = await prisma.address.create({
+      data: {
+        userId: req.user!.id,
+        fullName: `${req.user!.firstName} ${req.user!.lastName}`,
+        addressLine1: street,
+        city,
+        state,
+        pincode: zipCode,
+        country: country || 'India',
+        phone: req.user!.phone || '',
+        isDefault: false,
+      },
+    });
+
+    finalShippingAddrId = newAddress.id;
+    finalBillingAddrId = newAddress.id; // Use same address for billing
+  }
+
+  if (!finalShippingAddrId || !finalBillingAddrId) {
     throw new AppError('Shipping and billing addresses are required', 400);
   }
 
-  // Get cart items with product details
-  const cartItems = await prisma.cartItem.findMany({
-    where: { userId: req.user!.id },
-    include: {
-      product: {
-        include: {
-          images: true,
+  // Get cart items - either from request body or from database cart
+  let cartItems;
+  
+  if (items && Array.isArray(items) && items.length > 0) {
+    // Use items from request body (client-side cart)
+    const itemsInput = items as CartItemInput[];
+    const productIds = itemsInput.map(item => item.productId);
+    
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      include: { images: true },
+    });
+
+    cartItems = itemsInput.map(item => {
+      const product = products.find(p => p.id === item.productId);
+      if (!product) {
+        throw new AppError(`Product ${item.productId} not found`, 400);
+      }
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        product,
+      };
+    });
+  } else {
+    // Use server-side cart
+    cartItems = await prisma.cartItem.findMany({
+      where: { userId: req.user!.id },
+      include: {
+        product: {
+          include: {
+            images: true,
+          },
         },
       },
-    },
-  });
+    });
+  }
 
   if (cartItems.length === 0) {
     throw new AppError('Cart is empty', 400);
@@ -31,14 +100,14 @@ export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => 
   // Verify addresses belong to user
   const shippingAddr = await prisma.address.findFirst({
     where: {
-      id: shippingAddressId,
+      id: finalShippingAddrId,
       userId: req.user!.id,
     },
   });
 
   const billingAddr = await prisma.address.findFirst({
     where: {
-      id: billingAddressId,
+      id: finalBillingAddrId,
       userId: req.user!.id,
     },
   });
@@ -66,8 +135,8 @@ export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => 
       gstAmount: new Decimal(gstAmount),
       shippingFee: new Decimal(shippingFee),
       totalAmount: new Decimal(totalAmount),
-      shippingAddressId,
-      billingAddressId,
+      shippingAddressId: finalShippingAddrId,
+      billingAddressId: finalBillingAddrId,
       status: 'PENDING',
       paymentStatus: 'PENDING',
       items: {
@@ -107,6 +176,7 @@ export const checkout = asyncHandler(async (req: AuthRequest, res: Response) => 
 
   res.status(201).json({
     success: true,
+    order, // Frontend expects response.data.order
     data: order,
     message: 'Order created. Proceed to payment.',
   });

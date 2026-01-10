@@ -3,7 +3,48 @@
  * Handles payment creation, verification, and status checks
  */
 
-import { api } from './api';
+import api from './api';
+
+declare global {
+  interface Window {
+    Razorpay?: RazorpayConstructor;
+  }
+}
+
+interface RazorpayConstructor {
+  new (options: RazorpayOptions): RazorpayInstance;
+}
+
+interface RazorpayInstance {
+  open(): void;
+  close(): void;
+}
+
+interface RazorpayOptions {
+  key: string;
+  order_id: string;
+  name?: string;
+  description?: string;
+  image?: string;
+  amount?: number;
+  currency?: string;
+  handler?: (response: RazorpayResponse) => void;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
+  notes?: Record<string, unknown>;
+  theme?: {
+    color?: string;
+  };
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
 
 export interface PaymentCreateRequest {
   orderId: string;
@@ -30,7 +71,12 @@ export interface PaymentResponse {
 export interface PaymentStatusResponse {
   success: boolean;
   status?: 'PENDING' | 'PAID' | 'REFUNDED' | 'FAILED';
-  payment?: any;
+  payment?: {
+    id: string;
+    amount: number;
+    status: string;
+    [key: string]: unknown;
+  };
   error?: {
     message: string;
   };
@@ -57,11 +103,12 @@ export async function createPayment(
     }
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create payment';
     return {
       success: false,
       error: {
-        message: error.message || 'Failed to create payment',
+        message: errorMessage,
       },
     };
   }
@@ -83,11 +130,12 @@ export async function verifyPayment(
     }
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Payment verification failed';
     return {
       success: false,
       error: {
-        message: error.message || 'Payment verification failed',
+        message: errorMessage,
       },
     };
   }
@@ -107,11 +155,12 @@ export async function getPaymentStatus(paymentId: string): Promise<PaymentStatus
     }
 
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch payment status';
     return {
       success: false,
       error: {
-        message: error.message || 'Failed to fetch payment status',
+        message: errorMessage,
       },
     };
   }
@@ -123,7 +172,7 @@ export async function getPaymentStatus(paymentId: string): Promise<PaymentStatus
  */
 export function loadRazorpayScript(): Promise<boolean> {
   return new Promise((resolve) => {
-    if ((window as any).Razorpay) {
+    if (window.Razorpay) {
       resolve(true);
       return;
     }
@@ -141,8 +190,11 @@ export function loadRazorpayScript(): Promise<boolean> {
  * Open Razorpay checkout modal
  * @param options - Razorpay checkout options
  */
-export function openRazorpayCheckout(options: any): void {
-  const rzp = new (window as any).Razorpay(options);
+export function openRazorpayCheckout(options: RazorpayOptions): void {
+  if (!window.Razorpay) {
+    throw new Error('Razorpay not loaded');
+  }
+  const rzp = new window.Razorpay(options);
   rzp.open();
 }
 
@@ -150,7 +202,7 @@ export function openRazorpayCheckout(options: any): void {
  * Check if Razorpay script is loaded
  */
 export function isRazorpayLoaded(): boolean {
-  return !!(window as any).Razorpay;
+  return !!window.Razorpay;
 }
 
 /**

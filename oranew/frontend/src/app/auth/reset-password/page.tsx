@@ -1,6 +1,6 @@
 'use client';
 
-import { api } from '@/lib/api';
+import api from '@/lib/api';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';

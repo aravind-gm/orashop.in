@@ -1,3 +1,5 @@
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
@@ -35,7 +37,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="smooth-scroll">
       <body className={`${inter.variable} ${cormorant.variable} font-sans`}>
-        {children}
+        <Header />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
         <Toaster
           position="top-right"
           toastOptions={{
