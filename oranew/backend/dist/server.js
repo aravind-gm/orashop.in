@@ -27,6 +27,15 @@ const PORT = process.env.PORT || 5000;
 // ============================================
 // MIDDLEWARE
 // ============================================
+// CORS - MUST be first before any other middleware
+app.use((0, cors_1.default)({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Handle preflight requests
+app.options('*', (0, cors_1.default)());
 // Raw body middleware for Razorpay webhook (MUST be before express.json())
 app.use(rawBody_1.rawBodyMiddleware);
 // Raw body parser for Razorpay webhook
@@ -34,11 +43,6 @@ app.use('/api/payments/webhook', express_1.default.raw({ type: 'application/json
 // Body parser
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// CORS
-app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
-}));
 // Static files (uploads)
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 // Request logging (development)
@@ -57,6 +61,26 @@ app.get('/', (_req, res) => {
         message: 'ORA Jewellery API',
         tagline: 'own. radiate. adorn.',
         version: '1.0.0',
+    });
+});
+// API info endpoint
+app.get('/api', (_req, res) => {
+    res.json({
+        success: true,
+        message: 'ORA Jewellery API',
+        version: '1.0.0',
+        endpoints: {
+            auth: '/api/auth',
+            products: '/api/products',
+            categories: '/api/categories',
+            cart: '/api/cart',
+            orders: '/api/orders',
+            payments: '/api/payments',
+            users: '/api/users',
+            wishlist: '/api/wishlist',
+            reviews: '/api/reviews',
+            admin: '/api/admin',
+        },
     });
 });
 // Health check

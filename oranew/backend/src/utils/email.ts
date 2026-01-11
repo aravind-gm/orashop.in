@@ -66,6 +66,51 @@ export const getWelcomeEmailTemplate = (name: string): string => {
   `;
 };
 
+export const getPasswordResetEmailTemplate = (name: string, resetUrl: string): string => {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: 'Inter', sans-serif; color: #2D2D2D; background: #FDFBF7; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .logo { font-size: 32px; font-weight: bold; color: #FFD6E8; }
+        .tagline { font-size: 14px; color: #6B6B6B; margin-top: 8px; }
+        .content { background: white; padding: 40px; border-radius: 8px; }
+        h1 { font-family: 'Cormorant Garamond', serif; font-size: 28px; margin-bottom: 20px; }
+        .warning { background: #FEF3CD; padding: 15px; border-left: 4px solid #FFC107; margin: 20px 0; border-radius: 4px; }
+        .button { display: inline-block; padding: 12px 32px; background: #FFD6E8; color: #2D2D2D; text-decoration: none; border-radius: 8px; margin-top: 20px; font-weight: 500; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E5E5; font-size: 12px; color: #888; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="logo">ORA</div>
+          <div class="tagline">own. radiate. adorn.</div>
+        </div>
+        <div class="content">
+          <h1>Reset Your Password</h1>
+          <p>Hi ${name},</p>
+          <p>We received a request to reset your password. Click the button below to create a new password.</p>
+          <a href="${resetUrl}" class="button">Reset Password</a>
+          <div class="warning">
+            <strong>This link expires in 1 hour.</strong> If you didn't request this, you can safely ignore this email.
+          </div>
+          <p>Or paste this link in your browser:</p>
+          <p style="word-break: break-all; font-size: 12px; color: #666;"><code>${resetUrl}</code></p>
+          <div class="footer">
+            <p>This is an automated email. Please do not reply directly.</p>
+            <p>&copy; ${new Date().getFullYear()} ORA Jewellery. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+};
+
 export const getOrderConfirmationTemplate = (orderNumber: string, totalAmount: number): string => {
   return `
     <!DOCTYPE html>

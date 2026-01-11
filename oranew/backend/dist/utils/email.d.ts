@@ -5,5 +5,6 @@ export interface EmailOptions {
 }
 export declare const sendEmail: (options: EmailOptions) => Promise<void>;
 export declare const getWelcomeEmailTemplate: (name: string) => string;
+export declare const getPasswordResetEmailTemplate: (name: string, resetUrl: string) => string;
 export declare const getOrderConfirmationTemplate: (orderNumber: string, totalAmount: number) => string;
 //# sourceMappingURL=email.d.ts.map

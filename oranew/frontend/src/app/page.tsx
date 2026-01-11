@@ -6,109 +6,218 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <main>
+    <main className="bg-background">
       {/* Hero Section */}
       <Hero />
 
+      {/* Trust Badges */}
+      <section className="py-8 bg-background-white border-y border-border">
+        <div className="container-luxury">
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 text-center">
+            <div className="flex items-center gap-3">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              <div className="text-left">
+                <p className="text-xs text-text-muted">Free Shipping</p>
+                <p className="text-sm font-medium text-text-primary">Orders ₹999+</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <div className="text-left">
+                <p className="text-xs text-text-muted">Secure Payment</p>
+                <p className="text-sm font-medium text-text-primary">100% Protected</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <div className="text-left">
+                <p className="text-xs text-text-muted">Easy Returns</p>
+                <p className="text-sm font-medium text-text-primary">7-Day Policy</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="text-left">
+                <p className="text-xs text-text-muted">Support</p>
+                <p className="text-sm font-medium text-text-primary">24/7 Available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Collections */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h2 className="text-3xl font-bold mb-8">Featured Collections</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h3 className="text-2xl font-bold">Earrings</h3>
+      <section className="section-luxury bg-background">
+        <div className="container-luxury">
+          <div className="text-center mb-12">
+            <span className="text-sm tracking-[0.3em] uppercase text-accent">Discover</span>
+            <h2 className="heading-section mt-2 text-text-primary">Shop by Category</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Necklaces */}
+            <Link href="/products?category=necklaces" className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/80 via-text-primary/20 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-primary/20 group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <h3 className="text-2xl font-serif text-background-white mb-2">Necklaces</h3>
+                <p className="text-background/70 text-sm mb-4">Elegant chains & pendants</p>
+                <span className="inline-flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
+                  Explore Collection
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </div>
-            </div>
-          </Link>
-          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h3 className="text-2xl font-bold">Necklaces</h3>
+            </Link>
+
+            {/* Earrings */}
+            <Link href="/products?category=earrings" className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/80 via-text-primary/20 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-accent/20 group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <h3 className="text-2xl font-serif text-background-white mb-2">Earrings</h3>
+                <p className="text-background/70 text-sm mb-4">Studs, hoops & drops</p>
+                <span className="inline-flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
+                  Explore Collection
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </div>
-            </div>
-          </Link>
-          <Link href="/products" className="relative group overflow-hidden rounded-lg h-64 bg-gray-200">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-              <div className="p-6 text-white">
-                <h3 className="text-2xl font-bold">Bracelets</h3>
+            </Link>
+
+            {/* Bracelets */}
+            <Link href="/products?category=bracelets" className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/80 via-text-primary/20 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-primary/30 group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <h3 className="text-2xl font-serif text-background-white mb-2">Bracelets</h3>
+                <p className="text-background/70 text-sm mb-4">Bangles & charm bracelets</p>
+                <span className="inline-flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
+                  Explore Collection
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+
+            {/* Rings */}
+            <Link href="/products?category=rings" className="group relative overflow-hidden rounded-2xl aspect-[3/4] bg-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-t from-text-primary/80 via-text-primary/20 to-transparent z-10"></div>
+              <div className="absolute inset-0 bg-accent/30 group-hover:scale-110 transition-transform duration-700"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                <h3 className="text-2xl font-serif text-background-white mb-2">Rings</h3>
+                <p className="text-background/70 text-sm mb-4">Statement & stacking rings</p>
+                <span className="inline-flex items-center text-primary text-sm font-medium group-hover:gap-2 transition-all">
+                  Explore Collection
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* New Arrivals */}
       <NewArrivals />
 
-      {/* Testimonials */}
-      <Testimonials />
-
-      {/* Newsletter */}
-      <Newsletter />
-
-      {/* Footer */}
-      <footer className="bg-text-primary text-white py-16">
+      {/* Promo Banner */}
+      <section className="py-16 bg-primary/20">
         <div className="container-luxury">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            {/* Brand */}
-            <div>
-              <div className="text-2xl font-serif font-semibold mb-2 text-primary">ORA</div>
-              <p className="text-sm text-text-muted mb-4">own. radiate. adorn.</p>
-              <p className="text-sm text-background/70 leading-relaxed">
-                Premium artificial fashion jewellery designed for the modern woman.
-              </p>
-            </div>
-
-            {/* Shop */}
-            <div>
-              <h3 className="font-serif text-lg mb-4">Shop</h3>
-              <ul className="space-y-2 text-sm text-background/70">
-                <li><Link href="/products" className="hover:text-primary transition-colors">All Products</Link></li>
-                <li><Link href="/products/necklaces" className="hover:text-primary transition-colors">Necklaces</Link></li>
-                <li><Link href="/products/earrings" className="hover:text-primary transition-colors">Earrings</Link></li>
-                <li><Link href="/products/bracelets" className="hover:text-primary transition-colors">Bracelets</Link></li>
-                <li><Link href="/products/rings" className="hover:text-primary transition-colors">Rings</Link></li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h3 className="font-serif text-lg mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-background/70">
-                <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
-                <li><Link href="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
-                <li><Link href="/shipping" className="hover:text-primary transition-colors">Shipping Info</Link></li>
-                <li><Link href="/returns" className="hover:text-primary transition-colors">Returns</Link></li>
-                <li><Link href="/care" className="hover:text-primary transition-colors">Care Guide</Link></li>
-              </ul>
-            </div>
-
-            {/* Follow Us */}
-            <div>
-              <h3 className="font-serif text-lg mb-4">Follow Us</h3>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </a>
-                <a href="#" className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center hover:bg-primary transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </a>
+          <div className="bg-background-white rounded-3xl overflow-hidden shadow-luxury-hover">
+            <div className="grid md:grid-cols-2 items-center">
+              <div className="p-10 md:p-16">
+                <span className="inline-block px-4 py-1 bg-accent/20 text-accent text-xs font-semibold rounded-full mb-4">
+                  Limited Time Offer
+                </span>
+                <h2 className="text-3xl md:text-4xl font-serif font-light text-text-primary mb-4">
+                  Get 20% Off on Your First Order
+                </h2>
+                <p className="text-text-secondary mb-8">
+                  Join the ORA family and enjoy exclusive discounts on your first purchase. 
+                  Use code <span className="font-semibold text-accent">ORA20</span> at checkout.
+                </p>
+                <Link href="/products" className="btn-primary inline-block">
+                  Shop Now
+                </Link>
+              </div>
+              <div className="bg-primary/20 h-64 md:h-full flex items-center justify-center">
+                <div className="text-center p-8">
+                  <p className="text-6xl font-serif font-bold text-accent">20%</p>
+                  <p className="text-xl font-serif text-text-primary mt-2">OFF</p>
+                  <p className="text-sm text-text-muted mt-2">First Order</p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="divider-luxury opacity-20 mb-8"></div>
+      {/* Testimonials */}
+      <Testimonials />
 
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-background/50">
-            <p>© 2026 ORA Jewellery. All rights reserved.</p>
-            <div className="flex gap-6 mt-4 md:mt-0">
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+      {/* Why Choose ORA */}
+      <section className="section-luxury bg-background-white">
+        <div className="container-luxury">
+          <div className="text-center mb-12">
+            <span className="text-sm tracking-[0.3em] uppercase text-accent">Why ORA</span>
+            <h2 className="heading-section mt-2 text-text-primary">The ORA Promise</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-8">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-serif mb-3 text-text-primary">Premium Quality</h3>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                Each piece is crafted with attention to detail using high-quality materials that ensure lasting beauty.
+              </p>
+            </div>
+
+            <div className="text-center p-8">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-serif mb-3 text-text-primary">Affordable Luxury</h3>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                Experience the look and feel of fine jewellery without the hefty price tag. Beauty accessible to all.
+              </p>
+            </div>
+
+            <div className="text-center p-8">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/30 flex items-center justify-center">
+                <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-serif mb-3 text-text-primary">Made with Love</h3>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                Every design is created with passion and care, reflecting modern trends while celebrating timeless elegance.
+              </p>
             </div>
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* Newsletter */}
+      <Newsletter />
     </main>
   );
 }

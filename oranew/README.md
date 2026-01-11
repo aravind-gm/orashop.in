@@ -68,7 +68,15 @@ ora-jewellery/
    
    Backend (.env in /backend):
    ```env
-   DATABASE_URL="postgresql://user:password@localhost:5432/ora_db"
+   # Supabase Database Connection
+   # Get from: Supabase Dashboard > Project Settings > Database > Connection string
+   DATABASE_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+   
+   # Supabase API Keys (Optional)
+   SUPABASE_URL="https://[YOUR-PROJECT-REF].supabase.co"
+   SUPABASE_ANON_KEY="your-supabase-anon-key"
+   
    JWT_SECRET="your-super-secret-jwt-key"
    JWT_EXPIRES_IN="24h"
    

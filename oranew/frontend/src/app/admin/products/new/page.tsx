@@ -27,12 +27,16 @@ export default function NewProductPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.post('/admin/products', form);
+      const response = await api.post('/admin/products', {
+        ...form,
+        slug: form.slug || form.name.toLowerCase().replace(/\s+/g, '-'),
+      });
       if (response.data.success) {
         router.push('/admin/products');
       }
     } catch (err) {
-      console.error('Failed to create product');
+      console.error('Failed to create product', err);
+      alert('Failed to create product. Please check all required fields.');
     } finally {
       setLoading(false);
     }

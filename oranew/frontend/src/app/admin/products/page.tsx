@@ -30,11 +30,11 @@ export default function AdminProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/products');
+      const response = await api.get('/admin/products');
       if (response.data.success) {
-        setProducts(response.data.products || []);
+        setProducts(response.data.data?.products || []);
       }
-    } catch (err) {
+    } catch (_err) {
       console.error('Failed to fetch products');
     } finally {
       setLoading(false);
@@ -42,13 +42,11 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure?')) return;
+    if (!confirm('Are you sure you want to delete this product?')) return;
     try {
-      const response = await api.delete(`/admin/products/${id}`);
-      if (response.data.success) {
-        await fetchProducts();
-      }
-    } catch (err) {
+      await api.delete(`/admin/products/${id}`);
+      await fetchProducts();
+    } catch (_err) {
       console.error('Failed to delete product');
     }
   };

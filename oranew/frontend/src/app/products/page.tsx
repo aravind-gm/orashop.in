@@ -1,130 +1,240 @@
 'use client';
 
-import api from '@/lib/api';
-import { useCartStore } from '@/store/cartStore';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
+import ProductCard from '@/components/product/ProductCard';
+import ProductFilters from '@/components/product/ProductFilters';
+import { Menu, X } from 'lucide-react';
 
 interface Product {
   id: string;
   name: string;
   slug: string;
-  price: string | number;
-  finalPrice?: string | number;
-  description: string;
-  stockQuantity: number;
-  image?: string;
+  finalPrice: number;
+  price: number;
+  discountPercent: number;
+  averageRating?: number;
+  reviewCount?: number;
+  images: Array<{
+    id: string;
+    imageUrl: string;
+    isPrimary: boolean;
+    altText: string;
+  }>;
+}
+
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+interface FilterValue {
+  minPrice?: number;
+  maxPrice?: number;
+  category?: string;
+  sortBy?: string;
+  search?: string;
 }
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit: 12,
+    total: 0,
+    pages: 0,
+  });
   const [loading, setLoading] = useState(true);
-  const { addItem } = useCartStore();
+  const [filters, setFilters] = useState<FilterValue>({
+    minPrice: 0,
+    maxPrice: 100000,
+    category: '',
+    sortBy: 'createdAt',
+    search: '',
+  });
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = async (pageNum: number = 1, appliedFilters: FilterValue = filters) => {
     try {
-      const response = await api.get('/products');
-      if (response.data.success || response.data.data) {
-        const data = response.data.success ? response.data.data.products : response.data.data?.products || response.data.products || [];
-        setProducts(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch products:', err);
+      setLoading(true);
+      const params = {
+        page: pageNum,
+        limit: pagination.limit,
+        ...(appliedFilters.category && { category: appliedFilters.category }),
+        ...(appliedFilters.minPrice && { minPrice: appliedFilters.minPrice }),
+        ...(appliedFilters.maxPrice && { maxPrice: appliedFilters.maxPrice }),
+        ...(appliedFilters.sortBy && { sortBy: appliedFilters.sortBy }),
+        ...(appliedFilters.search && { search: appliedFilters.search }),
+      };
+
+      const response = await api.get('/products', { params });
+      setProducts(response.data.data.products);
+      setPagination(response.data.data.pagination);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-gray-700">Loading products...</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchProducts(1, filters);
+  }, [filters]);
+
+  const handleFilterChange = (newFilters: FilterValue) => {
+    setFilters(newFilters);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    fetchProducts(newPage, filters);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Our Collection</h1>
-        <p className="text-gray-600 mb-8">Premium artificial fashion jewellery</p>
-
-        {products.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg">
-            <p className="text-gray-600">No products available</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+              <p className="text-gray-600 mt-1">
+                Showing {products.length} of {pagination.total} products
+              </p>
+            </div>
+            <button
+              onClick={() => setShowMobileFilters(true)}
+              className="lg:hidden p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              <Menu size={24} className="text-gray-900" />
+            </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <Link key={product.id} href={`/products/${product.slug}`}>
-                <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow h-full overflow-hidden group cursor-pointer">
-                  <div className="h-56 bg-gray-200 overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform">
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-gray-400 text-center">
-                        <svg className="w-16 h-16 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span className="text-sm">No Image</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition mb-2 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-600 text-sm line-clamp-2 mb-4">{product.description}</p>
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <span className="text-lg font-bold text-gray-900">
-                          ₹{Number(product.finalPrice || product.price).toLocaleString()}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-xs font-semibold px-2 py-1 rounded ${
-                          product.stockQuantity > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {product.stockQuantity > 0 ? 'In Stock' : 'Out'}
-                      </span>
-                    </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Desktop Filters */}
+          <div className="hidden lg:block">
+            <ProductFilters
+              onFilterChange={handleFilterChange}
+              isMobile={false}
+            />
+          </div>
+
+          {/* Mobile Filters Modal */}
+          {showMobileFilters && (
+            <ProductFilters
+              onFilterChange={handleFilterChange}
+              isMobile={true}
+              onClose={() => setShowMobileFilters(false)}
+            />
+          )}
+
+          {/* Products Grid */}
+          <div className="lg:col-span-3">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-80 bg-gray-200 rounded-lg animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 bg-white rounded-lg border border-gray-200">
+                <p className="text-xl text-gray-900 font-semibold mb-2">
+                  No products found
+                </p>
+                <p className="text-gray-600 mb-6">
+                  Try adjusting your filters or search term
+                </p>
+                <button
+                  onClick={() => handleFilterChange({
+                    minPrice: 0,
+                    maxPrice: 100000,
+                    category: '',
+                    sortBy: 'createdAt',
+                    search: '',
+                  })}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {pagination.pages > 1 && (
+                  <div className="flex items-center justify-center gap-2">
                     <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (product.stockQuantity > 0) {
-                          addItem({
-                            id: crypto.randomUUID(),
-                            productId: product.id,
-                            name: product.name,
-                            price: Number(product.finalPrice || product.price),
-                            quantity: 1,
-                            image: product.image || '',
-                          });
-                        }
-                      }}
-                      disabled={product.stockQuantity === 0}
-                      className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition"
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                     >
-                      {product.stockQuantity > 0 ? 'Add to Cart' : 'Out of Stock'}
+                      Previous
+                    </button>
+
+                    {[...Array(pagination.pages)].map((_, i) => {
+                      const pageNum = i + 1;
+                      // Show first page, last page, current page, and neighbors
+                      if (
+                        pageNum === 1 ||
+                        pageNum === pagination.pages ||
+                        (pageNum >= pagination.page - 1 && pageNum <= pagination.page + 1)
+                      ) {
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                              pageNum === pagination.page
+                                ? 'bg-blue-600 text-white'
+                                : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      }
+
+                      // Show ellipsis for skipped pages
+                      if (pageNum === pagination.page - 2 || pageNum === pagination.page + 2) {
+                        return (
+                          <span key={pageNum} className="text-gray-500">
+                            ...
+                          </span>
+                        );
+                      }
+
+                      return null;
+                    })}
+
+                    <button
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page === pagination.pages}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                    >
+                      Next
                     </button>
                   </div>
-                </div>
-              </Link>
-            ))}
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
-  );
 }
+

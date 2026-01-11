@@ -6,34 +6,87 @@ const database_1 = require("../config/database");
 const helpers_1 = require("../utils/helpers");
 const inventory_1 = require("../utils/inventory");
 exports.checkout = (0, helpers_1.asyncHandler)(async (req, res) => {
-    const { shippingAddressId, billingAddressId } = req.body;
-    if (!shippingAddressId || !billingAddressId) {
+    const { shippingAddressId, billingAddressId, shippingAddress, items } = req.body;
+    let finalShippingAddrId = shippingAddressId;
+    let finalBillingAddrId = billingAddressId;
+    // Support inline address creation (for simpler checkout flow)
+    if (shippingAddress && !shippingAddressId) {
+        const { street, city, state, zipCode, country } = shippingAddress;
+        if (!street || !city || !state || !zipCode) {
+            throw new helpers_1.AppError('Shipping address is incomplete', 400);
+        }
+        // Fetch full user info for address
+        const fullUser = await database_1.prisma.user.findUnique({
+            where: { id: req.user.id },
+        });
+        // Create new address for user
+        const newAddress = await database_1.prisma.address.create({
+            data: {
+                userId: req.user.id,
+                fullName: fullUser?.fullName || 'Customer',
+                addressLine1: street,
+                city,
+                state,
+                pincode: zipCode,
+                country: country || 'India',
+                phone: fullUser?.phone || '',
+                isDefault: false,
+            },
+        });
+        finalShippingAddrId = newAddress.id;
+        finalBillingAddrId = newAddress.id; // Use same address for billing
+    }
+    if (!finalShippingAddrId || !finalBillingAddrId) {
         throw new helpers_1.AppError('Shipping and billing addresses are required', 400);
     }
-    // Get cart items with product details
-    const cartItems = await database_1.prisma.cartItem.findMany({
-        where: { userId: req.user.id },
-        include: {
-            product: {
-                include: {
-                    images: true,
+    // Get cart items - either from request body or from database cart
+    let cartItems;
+    if (items && Array.isArray(items) && items.length > 0) {
+        // Use items from request body (client-side cart)
+        const itemsInput = items;
+        const productIds = itemsInput.map(item => item.productId);
+        const products = await database_1.prisma.product.findMany({
+            where: { id: { in: productIds } },
+            include: { images: true },
+        });
+        cartItems = itemsInput.map(item => {
+            const product = products.find(p => p.id === item.productId);
+            if (!product) {
+                throw new helpers_1.AppError(`Product ${item.productId} not found`, 400);
+            }
+            return {
+                productId: item.productId,
+                quantity: item.quantity,
+                product,
+            };
+        });
+    }
+    else {
+        // Use server-side cart
+        cartItems = await database_1.prisma.cartItem.findMany({
+            where: { userId: req.user.id },
+            include: {
+                product: {
+                    include: {
+                        images: true,
+                    },
                 },
             },
-        },
-    });
+        });
+    }
     if (cartItems.length === 0) {
         throw new helpers_1.AppError('Cart is empty', 400);
     }
     // Verify addresses belong to user
     const shippingAddr = await database_1.prisma.address.findFirst({
         where: {
-            id: shippingAddressId,
+            id: finalShippingAddrId,
             userId: req.user.id,
         },
     });
     const billingAddr = await database_1.prisma.address.findFirst({
         where: {
-            id: billingAddressId,
+            id: finalBillingAddrId,
             userId: req.user.id,
         },
     });
@@ -57,8 +110,8 @@ exports.checkout = (0, helpers_1.asyncHandler)(async (req, res) => {
             gstAmount: new library_1.Decimal(gstAmount),
             shippingFee: new library_1.Decimal(shippingFee),
             totalAmount: new library_1.Decimal(totalAmount),
-            shippingAddressId,
-            billingAddressId,
+            shippingAddressId: finalShippingAddrId,
+            billingAddressId: finalBillingAddrId,
             status: 'PENDING',
             paymentStatus: 'PENDING',
             items: {
@@ -95,6 +148,7 @@ exports.checkout = (0, helpers_1.asyncHandler)(async (req, res) => {
     // DO NOT clear cart yet - wait for payment confirmation webhook
     res.status(201).json({
         success: true,
+        order, // Frontend expects response.data.order
         data: order,
         message: 'Order created. Proceed to payment.',
     });

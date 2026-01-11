@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const email = searchParams.get('email');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,10 +16,10 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!token) {
+    if (!token || !email) {
       setError('Invalid or missing reset token');
     }
-  }, [token]);
+  }, [token, email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,25 +31,33 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await api.post('/auth/reset-password', {
         token,
+        email,
         newPassword: password,
+        confirmPassword,
       });
 
       if (response.data.success) {
         setMessage('Password reset successful. Redirecting to login...');
         setTimeout(() => (window.location.href = '/auth/login'), 2000);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Password reset failed');
+    } catch (err: unknown) {
+      const error = err as any;
+      setError(error?.response?.data?.error?.message || 'Password reset failed');
     } finally {
       setLoading(false);
     }
   };
 
-  if (!token) {
+  if (!token || !email) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow p-8 text-center">

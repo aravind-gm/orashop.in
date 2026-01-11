@@ -9,11 +9,22 @@ const razorpay_1 = __importDefault(require("razorpay"));
 const database_1 = require("../config/database");
 const helpers_1 = require("../utils/helpers");
 const inventory_1 = require("../utils/inventory");
-// Initialize Razorpay instance
-const razorpay = new razorpay_1.default({
-    key_id: process.env.RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+// Initialize Razorpay instance lazily
+let razorpayInstance = null;
+const getRazorpay = () => {
+    if (!razorpayInstance) {
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+        if (!keyId || !keySecret) {
+            throw new helpers_1.AppError('Razorpay credentials not configured', 500);
+        }
+        razorpayInstance = new razorpay_1.default({
+            key_id: keyId,
+            key_secret: keySecret,
+        });
+    }
+    return razorpayInstance;
+};
 /**
  * Create a Razorpay payment order
  * Called after customer selects address and clicks "Continue to Payment"
@@ -51,6 +62,7 @@ exports.createPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
             success: true,
             paymentId: existingPayment.id,
             razorpayOrderId: existingPayment.transactionId,
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID,
             amount: Number(order.totalAmount) * 100, // Razorpay expects amount in paise
             currency: 'INR',
             key: process.env.RAZORPAY_KEY_ID,
@@ -63,7 +75,7 @@ exports.createPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
         });
     }
     // Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
+    const razorpayOrder = await getRazorpay().orders.create({
         amount: Math.round(Number(order.totalAmount) * 100), // Convert to paise
         currency: 'INR',
         receipt: order.orderNumber,
@@ -90,6 +102,7 @@ exports.createPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
         success: true,
         paymentId: payment.id,
         razorpayOrderId: razorpayOrder.id,
+        razorpayKeyId: process.env.RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         key: process.env.RAZORPAY_KEY_ID,
@@ -310,7 +323,7 @@ exports.refundPayment = (0, helpers_1.asyncHandler)(async (req, res) => {
     }
     try {
         // Call Razorpay refund API
-        const refund = await razorpay.payments.refund(payment.transactionId, {
+        const refund = await getRazorpay().payments.refund(payment.transactionId, {
             amount: Math.round(Number(amount) * 100), // Convert to paise
             notes: {
                 reason: reason || 'Customer refund',
